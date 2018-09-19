@@ -4,23 +4,24 @@ const bot = new Discord.Client({ disableEveryone: true });
 const guild = new Discord.Guild();
 const mysql = require("mysql");
 
-var prefix = botconfig.prefix;
+let disabled = false;
+let prefix = botconfig.prefix;
 
 
 bot.on("ready", async () => {
   console.log(`Bot has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
-  if (guild.available) {
-    console.log("Guild is available.");
-  }
+  bot.user.setPresence({ status: "online", game: { name: `YarBot online in ${bot.guilds.size} servers` } })
 });
 
-var con = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  database: "bottest"
+//Create DB connection
+const con = mysql.createConnection({
+  host: botconfig.host,
+  port: botconfig.port,
+  user: botconfig.user,
+  database: botconfig.database
 });
 
+//DB error
 con.connect(err => {
   if (err) throw err;
   console.log("Connected to database");
@@ -32,35 +33,79 @@ bot.on("message", async message => {
   con.query(`SELECT * FROM Test WHERE id='${message.author.id}'`, (err, rows) => {
     if (err) console.log(err);
     let sql;
-
+    //If member not in database add member
     if (rows.length < 1) {
       sql = `INSERT INTO Test (id, rep) VALUES ('${message.author.id}', 0)`;
       con.query(sql);
     }
   });
-  if (!message.guild) return;
+
+  //DM berichten
+  if (!message.guild) {
+    if (message.author.bot) return;
+    if (!message.content.startsWith(prefix)) return;
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    //Enable Bot
+    switch (command) {
+      //Enable Command
+      case "enable":
+        if (message.author.id == "228163151219130368") {
+          //Update Status
+          con.query(`UPDATE yarbotstatus SET status="enabled" WHERE id=1`);
+          message.author.send("Bot Enabled.");
+          console.log("Bot Enabled.");
+        }
+        else return message.author.send("Did you mean: !help?")
+        break;
+
+      //Disable Command
+      case "disable":
+        if (message.author.id == "228163151219130368") {
+          //Update Status
+          con.query(`UPDATE yarbotstatus SET status="disabled" WHERE id=1`);
+          message.author.send("Bot Disabled.");
+          console.log("Bot Disabled");
+        }
+        else return message.author.send("Did you mean: !help?")
+        break;
+
+      //Help Command
+      case "help":
+        message.author.send(`help is nog niet klaar ${message.author.id}`);
+        break;
+    }
+    return;
+  };
+
+
+  //Server commands
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
-
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
+  con.query(`SELECT * FROM yarbotstatus WHERE status='disabled'`, (err, rows) => {
+    if (err) console.log(err);
+    //If disabled
+    if (rows.length >= 1) {
+      message.reply(`Bot is disabled by Developer`);
+      disabled = true;
+    } else {
+      disabled = false;
+    }
+  });
+  if (disabled) return;
+
   //Command checker
   switch (command) {
     case "name":
-      message.reply(`Hallow ${message.author}`);
+      message.reply(`Hallow ${message.author.id}`);
       break;
-    case "quitbot":
-      if (message.author.id == 228163151219130368) {
-        message.reply("Permission to use this command");
-        var child_process = require('child_process');
-
-        child_process.exec('run', function (error, stdout, stderr) {
-          console.log(stdout);
-        });
-        throw new Error("Stopped bot");
-      }
-      else message.reply("No permission to use this command");
+    case "help":
+      message.author.send(`help is nog niet klaar ${message.author.id}`);
       break;
+    default: message.reply(`Unrecognized command use !help for a list of commands.`);
   }
 });
 bot.login(botconfig.token);
