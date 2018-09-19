@@ -1,10 +1,9 @@
 const botconfig = require("./botconfig.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({ disableEveryone: true });
-const guild = new Discord.Guild();
+const fs = require("fs");
 const mysql = require("mysql");
 
-let disabled = false;
 let prefix = botconfig.prefix;
 
 
@@ -53,22 +52,26 @@ bot.on("message", async message => {
       case "enable":
         if (message.author.id == "228163151219130368") {
           //Update Status
-          con.query(`UPDATE yarbotstatus SET status="enabled" WHERE id=1`);
+          botconfig.status = "enabled";
+          fs.writeFile("./botconfig.json", JSON.stringify(botconfig), function (err) {
+            if (err) return console.log(err);
+          });
           message.author.send("Bot Enabled.");
           console.log("Bot Enabled.");
         }
-        else return message.author.send("Did you mean: !help?")
         break;
 
       //Disable Command
       case "disable":
         if (message.author.id == "228163151219130368") {
           //Update Status
-          con.query(`UPDATE yarbotstatus SET status="disabled" WHERE id=1`);
+          botconfig.status = "disabled";
+          fs.writeFile("./botconfig.json", JSON.stringify(botconfig), function (err) {
+            if (err) return console.log(err);
+          });
           message.author.send("Bot Disabled.");
           console.log("Bot Disabled");
         }
-        else return message.author.send("Did you mean: !help?")
         break;
 
       //Help Command
@@ -83,24 +86,14 @@ bot.on("message", async message => {
   //Server commands
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
+  if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
-  con.query(`SELECT * FROM yarbotstatus WHERE status='disabled'`, (err, rows) => {
-    if (err) console.log(err);
-    //If disabled
-    if (rows.length >= 1) {
-      message.reply(`Bot is disabled by Developer`);
-      disabled = true;
-    } else {
-      disabled = false;
-    }
-  });
-  if (disabled) return;
 
   //Command checker
   switch (command) {
-    case "name":
-      message.reply(`Hallow ${message.author.id}`);
+    case "hoi":
+      message.channel.send(`Hallow ${message.author}`);
       break;
     case "help":
       message.author.send(`help is nog niet klaar ${message.author.id}`);
