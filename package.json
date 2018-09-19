@@ -1,0 +1,15 @@
+{
+  "name": "discbot",
+  "version": "1.0.0",
+  "description": "1",
+  "main": "indes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yarink",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "mysql": "^2.16.0"
+  }
+}
