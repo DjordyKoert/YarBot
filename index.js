@@ -3,12 +3,11 @@ const Discord = require("discord.js");
 const bot = new Discord.Client({ disableEveryone: true });
 const fs = require("fs");
 const mysql = require("mysql");
-
-let prefix = botconfig.prefix;
+const prefix = botconfig.prefix;
 
 
 bot.on("ready", async () => {
-  console.log(`Bot has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
+  console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
   bot.user.setPresence({ status: "online", game: { name: `YarBot online in ${bot.guilds.size} servers` } })
 });
 
@@ -58,6 +57,7 @@ bot.on("message", async message => {
           });
           message.author.send("Bot Enabled.");
           console.log("Bot Enabled.");
+          message.react("✅");
         }
         break;
 
@@ -71,34 +71,157 @@ bot.on("message", async message => {
           });
           message.author.send("Bot Disabled.");
           console.log("Bot Disabled");
+          message.react("✅");
         }
         break;
+      case "announcement":
+        let txt = args.slice(0).join(' ');
+        con.query(`SELECT * FROM ssetup`, (err, rows) => {
+          if (err) console.log(err);
+          let i = 0;
+          console.log(`test, ${rows.length}`);
+          while (i < rows.length) {
+            var getServerID = rows[i].serverID;
+            var getAnnouncementID = rows[i].announcementID;
+            console.log(getServerID);
+            console.log(getAnnouncementID);
 
+            bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(txt);
+
+            i++;
+          }
+        });
+        message.react("✅");
+        break;
       //Help Command
       case "help":
-        message.author.send(`help is nog niet klaar ${message.author.id}`);
-        break;
+      //Create embed
+      message.author.send({
+        embed: {
+          color: (133, 0, 255),
+          title: "Help",
+          footer: {
+            icon: bot.user.avatarURL,
+            text: "Made by Yarink#4414"
+          },
+          author: {
+            name: `👑 List of commands for ${bot.user.username}👑`,
+          },
+          fields: [{
+            name: "👨🏼‍💻 General commands",
+            value: "```help -Shows this message\nhoi -Get a nice message```"
+          }, {
+            name: "Admin Commands",
+            value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup #yourchannel```"
+          }, {
+            name: "Note",
+            value: "```Prefix : '>'```"
+          }
+          ]
+        }
+      });
+      break;
+      default: message.author.send("Did you mean: >help?");
     }
     return;
   };
 
-
-  //Server commands
+  //Guild commands
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
   if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
-
+  let server = message.guild.id;
   //Command checker
   switch (command) {
     case "hoi":
       message.channel.send(`Hallow ${message.author}`);
+      
+      if (server == "352141368023318528") {
+        message.react("<:oof:377435430733348864>");
+      }
+      else if (server == "381909448664547329") {
+        message.react("💩");
+      }
+      message.react("❌");
+      message.react("✅");
       break;
+    //Announcement setup command
+    case "setup":
+      //Remove announcement channel
+      if (args[0] == "remove") {
+        con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+          if (err) console.log(err)
+          if (rows.length == 0) {message.reply("No announcement channel available"); message.react("❌"); return;}
+          sql = `DELETE FROM ssetup WHERE serverID='${server}'`;
+          con.query(sql);
+          message.react("✅");
+          return;
+        });
+      }
+      //Show current announcement channel
+      else if (!message.mentions.channels.first()) {
+        con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+          if (err) console.log(err);
+          if (rows.length == 0) {message.reply("No announcement channel available"); message.react("❌"); return;}
+          message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
+          return;
+        });
+      } 
+      //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
+      else {
+        let announcementID = message.mentions.channels.first();
+        con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+          if (err) console.log(err);
+          let sql;
+          //If server doesn't already have an announcement channel
+          if (rows.length == 0) {
+            sql = `INSERT INTO ssetup (serverID, announcementID) VALUES ('${server}', '${announcementID.id}')`;
+            con.query(sql);
+            message.react("✅");
+            console.log(`New annoucement channel in server: ${server}, announcementID=${announcementID}`)
+          } //If server already has an announcement channel
+          else {
+            sql = `UPDATE ssetup SET announcementID='${announcementID.id}' WHERE serverID='${server}'`;
+            con.query(sql);
+            message.react("✅");
+            console.log(`Updated annoucement channel in server: ${server}, announcementID=${announcementID}`)
+          }
+        });
+      }
+      break;
+
+    //Help Command
     case "help":
-      message.author.send(`help is nog niet klaar ${message.author.id}`);
+      //Create embed
+      message.author.send({
+        embed: {
+          color: (133, 0, 255),
+          title: "Help",
+          footer: {
+            icon: bot.user.avatarURL,
+            text: "Made by Yarink#4414"
+          },
+          author: {
+            name: `👑 List of commands for ${bot.user.username}👑`,
+          },
+          fields: [{
+            name: "👨🏼‍💻 General commands",
+            value: "```help -Shows this message\nhoi -Get a nice message```"
+          }, {
+            name: "Admin Commands",
+            value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup #yourchannel```"
+          }, {
+            name: "Note",
+            value: "```Prefix : '>'```"
+          }
+          ]
+        }
+      });
+      message.react("✅");
       break;
-    default: message.reply(`Unrecognized command use !help for a list of commands.`);
+    default: message.reply(`Unrecognized command use >help for a list of commands.`);
   }
 });
 bot.login(botconfig.token);
