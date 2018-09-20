@@ -4,7 +4,7 @@ const bot = new Discord.Client({ disableEveryone: true });
 const fs = require("fs");
 const mysql = require("mysql");
 const prefix = botconfig.prefix;
-
+let sql;
 
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
@@ -19,24 +19,53 @@ const con = mysql.createConnection({
   database: botconfig.database
 });
 
-bot.on("guildCreate", guild => {
-  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
-})
-bot.on("guildDelete", guid => {
-  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
-})
 //DB error
 con.connect(err => {
   if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
   console.log("Connected to database");
 });
 
+//Bot join server
+bot.on("guildCreate", guild => {
+  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
+  let server = guild.id;
+  let serverName = guild.name;
+  con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    //If server doesn't already have an announcement channel
+    if (rows.length == 0) {
+      sql = `INSERT INTO ssetup (serverID, serverName) VALUES ('${server}', '${serverName}')`;
+      con.query(sql);
+      console.log(`New server added: ${server}`)
+    } else {
+      sql = `UPDATE ssetup SET serverName='${serverName}'WHERE serverID='${server}'`;
+      con.query(sql);
+      console.log(`Updated serverName from: ${server}, serverName=${serverName}`)
+    }
+  });
+})
+//Bot leave server
+
+bot.on("guildDelete", guild => {
+  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
+  con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    if (!rows.length == 0) {
+      sql = `DELETE FROM ssetup WHERE serverID='${server}'`;
+      con.query(sql);
+      console.log(`Server removed, because bot left: ${server}`)
+    }
+  });
+})
+
+
+
+
 //On message
 bot.on("message", async message => {
   //Check if member is in database
   con.query(`SELECT * FROM Test WHERE id='${message.author.id}'`, (err, rows) => {
     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-    let sql;
     //If member not in database add member
     if (rows.length < 1) {
       sql = `INSERT INTO Test (id, rep) VALUES ('${message.author.id}', 0)`;
@@ -238,7 +267,7 @@ bot.on("message", async message => {
       //Remove announcement channel
       if (args[0] == "remove") {
         con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-          if (err) console.log(err)
+          if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
           if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
           sql = `DELETE FROM ssetup WHERE serverID='${server}'`;
           con.query(sql);
@@ -251,7 +280,7 @@ bot.on("message", async message => {
         //Show current announcement channel
         if (!message.mentions.channels.first()) {
           con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-            if (err) console.log(err);
+            if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
             if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
             message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
             return;
@@ -260,8 +289,7 @@ bot.on("message", async message => {
         else {
           let announcementID = message.mentions.channels.first();
           con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-            if (err) console.log(err);
-            let sql;
+            if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
             //If server doesn't already have an announcement channel
             if (rows.length == 0) {
               sql = `INSERT INTO ssetup (serverID, serverName,announcementID) VALUES ('${server}', '${serverName}','${announcementID.id}')`;
