@@ -311,6 +311,10 @@ bot.on("message", async message => {
       });
       message.react("✅");
       break;
+      case "test":
+        let err="test err";
+        createLog(fs,err);
+      break;
     default: message.reply(`Unrecognized command use >help for a list of commands.`); message.react("❌");
   }
 });
@@ -327,6 +331,12 @@ function createLog(fs, err, extraMessage) {
   let currentHours = date.getHours();
   let currentMinutes = date.getMinutes();
   let error_date = (`${currentDay}-${currentMonth}-${currentYear}_${currentHours}.${currentMinutes}`)
+
+  //Create logs folder if it doens't exist
+  if (!fs.existsSync("./logs")) {
+    fs.mkdirSync("./logs");
+    console.log("Creating ./logs folder");
+  }
 
   fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
     if (err) return console.error(err);
