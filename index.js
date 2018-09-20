@@ -19,6 +19,14 @@ const con = mysql.createConnection({
   database: botconfig.database
 });
 
+bot.on("guildCreate", guild => {
+  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
+})
+bot.on("guildDelete", guid => {
+  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
+  sql = `DELETE FROM ssetup WHERE serverID='${server}'`;
+  con.query(sql);
+})
 //DB error
 con.connect(err => {
   if (err) throw err;
@@ -90,8 +98,13 @@ bot.on("message", async message => {
                 var getAnnouncementID = rows[i].announcementID;
                 console.log(getServerID);
                 console.log(getAnnouncementID);
-
-                bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
+                try {
+                  bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
+                } catch (err){
+                  sql = `DELETE FROM ssetup WHERE serverID='${getServerID}'`;
+                  con.query(sql);
+                  console.log(`Bot left this server removing ${getServerID} from database`);
+                }
                 i++;
                 if (i < rows.length) {
                   whileLoop();
@@ -271,33 +284,33 @@ bot.on("message", async message => {
 
     //Help Command
     case "help":
-    message.author.send({
-      embed: {
-        color: (133, 0, 255),
-        title: "Help",
-        footer: {
-          icon: bot.user.avatarURL,
-          text: "Made by Yarink#4414"
-        },
-        author: {
-          name: `👑 List of commands for ${bot.user.username}👑`,
-        },
-        fields: [{
-          name: "👨🏼‍💻 General commands",
-          value: "```help -Shows this message\nhoi -Get a nice message\ninvite -Shows YarBot invite link```"
-        }, {
-          name: "Fun Commands",
-          value: "```8ball -Ask the magic 8ball a question```"
-        }, {
-          name: "Admin Commands",
-          value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelID) #(yourchannel)\n\nsay -Let the bot send a message```"
-        }, {
-          name: "Note",
-          value: "```Prefix : '>'```"
+      message.author.send({
+        embed: {
+          color: (133, 0, 255),
+          title: "Help",
+          footer: {
+            icon: bot.user.avatarURL,
+            text: "Made by Yarink#4414"
+          },
+          author: {
+            name: `👑 List of commands for ${bot.user.username}👑`,
+          },
+          fields: [{
+            name: "👨🏼‍💻 General commands",
+            value: "```help -Shows this message\nhoi -Get a nice message\ninvite -Shows YarBot invite link```"
+          }, {
+            name: "Fun Commands",
+            value: "```8ball -Ask the magic 8ball a question```"
+          }, {
+            name: "Admin Commands",
+            value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelID) #(yourchannel)\n\nsay -Let the bot send a message```"
+          }, {
+            name: "Note",
+            value: "```Prefix : '>'```"
+          }
+          ]
         }
-        ]
-      }
-    });
+      });
       message.react("✅");
       break;
     default: message.reply(`Unrecognized command use >help for a list of commands.`); message.react("❌");
