@@ -24,12 +24,10 @@ bot.on("guildCreate", guild => {
 })
 bot.on("guildDelete", guid => {
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
-  sql = `DELETE FROM ssetup WHERE serverID='${server}'`;
-  con.query(sql);
 })
 //DB error
 con.connect(err => {
-  if (err) throw err;
+  if (err) { return createLog(fs, err); }
   console.log("Connected to database");
 });
 
@@ -37,7 +35,7 @@ con.connect(err => {
 bot.on("message", async message => {
   //Check if member is in database
   con.query(`SELECT * FROM Test WHERE id='${message.author.id}'`, (err, rows) => {
-    if (err) console.log(err);
+    if (err) { return createLog(fs, err); }
     let sql;
     //If member not in database add member
     if (rows.length < 1) {
@@ -61,7 +59,7 @@ bot.on("message", async message => {
           //Update Status
           botconfig.status = "enabled";
           fs.writeFile("./botconfig.json", JSON.stringify(botconfig), function (err) {
-            if (err) return console.log(err);
+            if (err) { return createLog(fs, err); }
           });
           message.author.send("Bot Enabled.");
           console.log("Bot Enabled.");
@@ -75,7 +73,7 @@ bot.on("message", async message => {
           //Update Status
           botconfig.status = "disabled";
           fs.writeFile("./botconfig.json", JSON.stringify(botconfig), function (err) {
-            if (err) return console.log(err);
+            if (err) { return createLog(fs, err); }
           });
           message.author.send("Bot Disabled.");
           console.log("Bot Disabled");
@@ -89,7 +87,7 @@ bot.on("message", async message => {
           let txtmessage = args.slice(0).join(' ');
           if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }
           con.query(`SELECT * FROM ssetup`, (err, rows) => {
-            if (err) console.log(err);
+            if (err) { return createLog(fs, err); }
             let i = 0;
             whileLoop();
             function whileLoop() {
@@ -100,10 +98,10 @@ bot.on("message", async message => {
                 console.log(getAnnouncementID);
                 try {
                   bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
-                } catch (err){
+                } catch (err) {
+                  if (err) { let extraMessage = "Bot probably left server and can't send an announcement. Leaving server..."; createLog(fs, err, extraMessage); }
                   sql = `DELETE FROM ssetup WHERE serverID='${getServerID}'`;
                   con.query(sql);
-                  console.log(`Bot left this server removing ${getServerID} from database`);
                 }
                 i++;
                 if (i < rows.length) {
@@ -317,3 +315,21 @@ bot.on("message", async message => {
   }
 });
 bot.login(botconfig.token);
+
+//Create an errorLog
+function createLog(fs, err, extraMessage) {
+  if (!extraMessage) extraMessage = "";
+
+  let date = new Date();
+  let currentYear = date.getFullYear();
+  let currentMonth = date.getMonth();
+  let currentDay = date.getDate();
+  let currentHours = date.getHours();
+  let currentMinutes = date.getMinutes();
+  let error_date = (`${currentDay}-${currentMonth}-${currentYear}_${currentHours}.${currentMinutes}`)
+
+  fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
+    if (err) return console.error(err);
+    console.log(`Succefully made logs file: err_${error_date}.txt`);
+  });
+}
