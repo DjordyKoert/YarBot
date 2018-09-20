@@ -2,7 +2,7 @@
   "name": "discbot",
   "version": "1.0.0",
   "description": "1",
-  "main": "indes.js",
+  "main": "node index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

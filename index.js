@@ -8,7 +8,7 @@ const prefix = botconfig.prefix;
 
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
-  bot.user.setPresence({ status: "online", type: "WATCHING", name: `YarBot online in ${bot.guilds.size} servers` })
+  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
 });
 
 //Create DB connection
@@ -78,21 +78,25 @@ bot.on("message", async message => {
       //Announcement command
       case "announcement":
         if (message.author.id == "228163151219130368") {
-          let txt = args.slice(0).join(' ');
-          if (txt == "") message.react("❌"); message.reply("Empty announcement message"); return;;
+          let txtmessage = args.slice(0).join(' ');
+          if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }
           con.query(`SELECT * FROM ssetup`, (err, rows) => {
             if (err) console.log(err);
             let i = 0;
-            console.log(`test, ${rows.length}`);
-            while (i < rows.length) {
-              var getServerID = rows[i].serverID;
-              var getAnnouncementID = rows[i].announcementID;
-              console.log(getServerID);
-              console.log(getAnnouncementID);
+            whileLoop();
+            function whileLoop() {
+              setTimeout(function () {
+                var getServerID = rows[i].serverID;
+                var getAnnouncementID = rows[i].announcementID;
+                console.log(getServerID);
+                console.log(getAnnouncementID);
 
-              bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txt}`);
-
-              i++;
+                bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
+                i++;
+                if (i < rows.length) {
+                  whileLoop();
+                }
+              }, 2000) //Timer becuz discord
             }
           });
           message.react("✅");
@@ -104,7 +108,7 @@ bot.on("message", async message => {
           embed: {
             color: (133, 0, 255),
             title: "Get YarBot on your server.",
-            description: "[invite YarBot to your server](https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&permissions=1304952001)",
+            description: "[invite YarBot to your server](https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&permissions=8)",
             footer: {
               icon: bot.user.avatarURL,
               text: "Made by Yarink#4414"
@@ -130,8 +134,11 @@ bot.on("message", async message => {
               name: "👨🏼‍💻 General commands",
               value: "```help -Shows this message\nhoi -Get a nice message\ninvite -Shows YarBot invite link```"
             }, {
+              name: "Fun Commands",
+              value: "```8ball -Ask the magic 8ball a question```"
+            }, {
               name: "Admin Commands",
-              value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup #yourchannel```"
+              value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelID) #(yourchannel)\n\nsay -Let the bot send a message```"
             }, {
               name: "Note",
               value: "```Prefix : '>'```"
@@ -139,6 +146,7 @@ bot.on("message", async message => {
             ]
           }
         });
+        message.react("✅");
         break;
       default: message.author.send("Did you mean: >help?"); message.react("❌");
     }
@@ -154,6 +162,7 @@ bot.on("message", async message => {
   let server = message.guild.id;
   //Command checker
   switch (command) {
+    //Hoi Command
     case "hoi":
       message.channel.send(`Hallow ${message.author}`);
 
@@ -166,12 +175,13 @@ bot.on("message", async message => {
       message.react("❌");
       message.react("✅");
       break;
+    //Invite Command
     case "invite":
       message.author.send({
         embed: {
           color: (133, 0, 255),
           title: "Help",
-          description: "[invite YarBot to your server](https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&permissions=1304952001)",
+          description: "[invite YarBot to your server](https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&permissions=8)",
           footer: {
             icon: bot.user.avatarURL,
             text: "Made by Yarink#4414"
@@ -179,6 +189,35 @@ bot.on("message", async message => {
         }
       });
       message.react("✅");
+      break;
+    //8ball command
+    case "8ball":
+      if (!args[0]) { message.reply("Shaking this ball won't do anything if there isn't a question."); message.react("❌"); return; }
+      const answers = [
+        "Probably",
+        "The almighty 8ball says yes",
+        "Perhaps",
+        "Most likely",
+        "My sources say no",
+        "Don't count on it",
+        "It is certain",
+        'Concentrate and ask again.',
+        'It is decidedly so.',
+        'Better not tell you now.',
+        'Very doubtful.',
+        'Yes - definitely.',
+      ]
+      let answer = answers[Math.floor(Math.random() * answers.length)];
+      message.reply(`The 8ball says: ${answer}`);
+      message.react("✅");
+      break;
+    //Say command
+    case "say":
+      if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; }
+      let txtmessage = args.slice(0).join(' ');
+      if (txtmessage == "") { message.react("❌"); message.reply("Empty message"); return; }
+      message.delete();
+      message.channel.send(txtmessage);
       break;
     //Announcement setup command
     case "setup":
@@ -195,66 +234,70 @@ bot.on("message", async message => {
           return;
         });
       }
-      //Show current announcement channel
-      else if (!message.mentions.channels.first()) {
-        con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-          if (err) console.log(err);
-          if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
-          message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
-          return;
-        });
-      }
       //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
       else if (args[0] == "announcement") {
-        let announcementID = message.mentions.channels.first();
-        con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-          if (err) console.log(err);
-          let sql;
-          //If server doesn't already have an announcement channel
-          if (rows.length == 0) {
-            sql = `INSERT INTO ssetup (serverID, announcementID) VALUES ('${server}', '${announcementID.id}')`;
-            con.query(sql);
-            message.react("✅");
-            console.log(`New annoucement channel in server: ${server}, announcementID=${announcementID}`)
-          } //If server already has an announcement channel
-          else {
-            sql = `UPDATE ssetup SET announcementID='${announcementID.id}' WHERE serverID='${server}'`;
-            con.query(sql);
-            message.react("✅");
-            console.log(`Updated annoucement channel in server: ${server}, announcementID=${announcementID}`)
-          }
-        });
+        //Show current announcement channel
+        if (!message.mentions.channels.first()) {
+          con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+            if (err) console.log(err);
+            if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
+            message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
+            return;
+          });
+        }
+        else {
+          let announcementID = message.mentions.channels.first();
+          con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+            if (err) console.log(err);
+            let sql;
+            //If server doesn't already have an announcement channel
+            if (rows.length == 0) {
+              sql = `INSERT INTO ssetup (serverID, announcementID) VALUES ('${server}', '${announcementID.id}')`;
+              con.query(sql);
+              message.react("✅");
+              console.log(`New annoucement channel in server: ${server}, announcementID=${announcementID}`)
+            } //If server already has an announcement channel
+            else {
+              sql = `UPDATE ssetup SET announcementID='${announcementID.id}' WHERE serverID='${server}'`;
+              con.query(sql);
+              message.react("✅");
+              console.log(`Updated annoucement channel in server: ${server}, announcementID=${announcementID}`)
+            }
+          });
+        }
       }
-      else { message.reply("Usage: >setup (channelID) (#channelname)\nAllowed channelID's:\n| announcement\n| YarCommands"); message.react("❌"); return; }
+      else { message.reply("\nUsage: >setup (channelID) (#channelname)\nAllowed channelID's:\n|> announcement"); message.react("❌"); return; }
       break;
 
     //Help Command
     case "help":
-      //Create embed
-      message.author.send({
-        embed: {
-          color: (133, 0, 255),
-          title: "Help",
-          footer: {
-            icon: bot.user.avatarURL,
-            text: "Made by Yarink#4414"
-          },
-          author: {
-            name: `👑 List of commands for ${bot.user.username}👑`,
-          },
-          fields: [{
-            name: "👨🏼‍💻 General commands",
-            value: "```help -Shows this message\nhoi -Get a nice message\ninvite -Shows YarBot invite link```"
-          }, {
-            name: "Admin Commands",
-            value: "```help -Shows this message\nhoi -Get a nice message\ninvite -Shows YarBot invite link```"
-          }, {
-            name: "Note",
-            value: "```Prefix : '>'```"
-          }
-          ]
+    message.author.send({
+      embed: {
+        color: (133, 0, 255),
+        title: "Help",
+        footer: {
+          icon: bot.user.avatarURL,
+          text: "Made by Yarink#4414"
+        },
+        author: {
+          name: `👑 List of commands for ${bot.user.username}👑`,
+        },
+        fields: [{
+          name: "👨🏼‍💻 General commands",
+          value: "```help -Shows this message\nhoi -Get a nice message\ninvite -Shows YarBot invite link```"
+        }, {
+          name: "Fun Commands",
+          value: "```8ball -Ask the magic 8ball a question```"
+        }, {
+          name: "Admin Commands",
+          value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelID) #(yourchannel)\n\nsay -Let the bot send a message```"
+        }, {
+          name: "Note",
+          value: "```Prefix : '>'```"
         }
-      });
+        ]
+      }
+    });
       message.react("✅");
       break;
     default: message.reply(`Unrecognized command use >help for a list of commands.`); message.react("❌");
