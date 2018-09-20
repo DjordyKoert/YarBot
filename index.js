@@ -14,6 +14,7 @@ bot.on("ready", async () => {
 //Create DB connection
 const con = mysql.createConnection({
   host: botconfig.host,
+  password: botconfig.password,
   port: botconfig.port,
   user: botconfig.user,
   database: botconfig.database
@@ -44,9 +45,10 @@ bot.on("guildCreate", guild => {
     }
   });
 })
-//Bot leave server
 
+//Bot leave server
 bot.on("guildDelete", guild => {
+  let server = guild.id;
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
   con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
@@ -64,11 +66,11 @@ bot.on("guildDelete", guild => {
 //On message
 bot.on("message", async message => {
   //Check if member is in database
-  con.query(`SELECT * FROM Test WHERE id='${message.author.id}'`, (err, rows) => {
+  con.query(`SELECT * FROM test WHERE id='${message.author.id}'`, (err, rows) => {
     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     //If member not in database add member
     if (rows.length < 1) {
-      sql = `INSERT INTO Test (id, rep) VALUES ('${message.author.id}', 0)`;
+      sql = `INSERT INTO test (id, rep) VALUES ('${message.author.id}', 0)`;
       con.query(sql);
     }
   });
@@ -136,7 +138,7 @@ bot.on("message", async message => {
                 if (i < rows.length) {
                   whileLoop();
                 }
-              }, 2000) //Timer becuz discord
+              }, 1000) //Timer becuz discord
             }
           });
           message.react("✅");
