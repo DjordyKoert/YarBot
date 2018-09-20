@@ -65,15 +65,6 @@ bot.on("guildDelete", guild => {
 
 //On message
 bot.on("message", async message => {
-  //Check if member is in database
-  con.query(`SELECT * FROM test WHERE id='${message.author.id}'`, (err, rows) => {
-    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-    //If member not in database add member
-    if (rows.length < 1) {
-      sql = `INSERT INTO test (id, rep) VALUES ('${message.author.id}', 0)`;
-      con.query(sql);
-    }
-  });
 
   //DM berichten
   if (!message.guild) {
@@ -357,7 +348,8 @@ function createLog(fs, err, errstack, extraMessage) {
   let currentDay = date.getDate();
   let currentHours = date.getHours();
   let currentMinutes = date.getMinutes();
-  let error_date = (`${currentDay}-${currentMonth}-${currentYear}_${currentHours}.${currentMinutes}`)
+  let currentSecs = date.getSeconds();
+  let error_date = (`${currentDay}-${currentMonth}-${currentYear}_${currentHours}.${currentMinutes}.${currentSecs}`)
 
   //Create logs folder if it doens't exist
   if (!fs.existsSync("./logs")) {
