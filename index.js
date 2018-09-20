@@ -8,7 +8,7 @@ const prefix = botconfig.prefix;
 
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
-  bot.user.setPresence({ status: "online", type: "WATCHING" , name: `YarBot online in ${bot.guilds.size} servers` })
+  bot.user.setPresence({ status: "online", type: "WATCHING", name: `YarBot online in ${bot.guilds.size} servers` })
 });
 
 //Create DB connection
@@ -79,6 +79,7 @@ bot.on("message", async message => {
       case "announcement":
         if (message.author.id == "228163151219130368") {
           let txt = args.slice(0).join(' ');
+          if (txt == "") message.react("❌"); message.reply("Empty announcement message"); return;;
           con.query(`SELECT * FROM ssetup`, (err, rows) => {
             if (err) console.log(err);
             let i = 0;
@@ -139,7 +140,7 @@ bot.on("message", async message => {
           }
         });
         break;
-      default: message.author.send("Did you mean: >help?");
+      default: message.author.send("Did you mean: >help?"); message.react("❌");
     }
     return;
   };
@@ -181,6 +182,8 @@ bot.on("message", async message => {
       break;
     //Announcement setup command
     case "setup":
+      //Check permissions
+      if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
       //Remove announcement channel
       if (args[0] == "remove") {
         con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
@@ -202,7 +205,7 @@ bot.on("message", async message => {
         });
       }
       //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
-      else {
+      else if (args[0] == "announcement") {
         let announcementID = message.mentions.channels.first();
         con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
           if (err) console.log(err);
@@ -222,6 +225,7 @@ bot.on("message", async message => {
           }
         });
       }
+      else { message.reply("Usage: >setup (channelID) (#channelname)\nAllowed channelID's:\n| announcement\n| YarCommands"); message.react("❌"); return; }
       break;
 
     //Help Command
@@ -253,7 +257,7 @@ bot.on("message", async message => {
       });
       message.react("✅");
       break;
-    default: message.reply(`Unrecognized command use >help for a list of commands.`);
+    default: message.reply(`Unrecognized command use >help for a list of commands.`); message.react("❌");
   }
 });
 bot.login(botconfig.token);
