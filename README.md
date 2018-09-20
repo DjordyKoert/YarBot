@@ -18,9 +18,9 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 #### Admin Commands
 >">setup (channelproperty) #(channel_name)" -Create an announcement channel in your server
 ##### Usage:
->">setup" -Shows current announcement channel name
+>">setup" -Shows current announcement channel name <br />
 >">setup (channelproperty) #(channel_name)" -Create an announcement channel in your server 
-##### Allowed channelproperty's:
+###### Allowed channelproperty's:
 *announcement*
-##### Permission(s) needed to use command:
+###### Permission(s) needed to use command:
 MANAGE_CHANNELS
