@@ -7,6 +7,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 ### Private Message commands
 >">help" -Get help message in PM. <br />
 >">invite" -Get invite link to invite bot to your server in PM. <br />
+>">suggestion (title) (suggestion)" -Sends a suggestion to add in the bot to DjordyKoert (Yarink)
 #### Developer Only commands
 >">enable" -Enable the bot. <br />
 >">disable" -Disable the bot. <br />
