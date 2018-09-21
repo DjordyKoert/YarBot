@@ -385,6 +385,7 @@ bot.on("message", async message => {
           return;
         }
         bot.users.get(dmUser).send(`${dmMessage}\n\nThis message was sent by:  ${message.author.username}`);
+        message.author.send(`✅ DM succesfully send to <@${dmUser}>`)
         message.delete();
         return;
       });
