@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, message, args) => {
+module.exports.run = async (bot, botconfig, fs, message, args, con, server, serverName) => {
     message.author.send({
         embed: {
             color: (133, 0, 255),

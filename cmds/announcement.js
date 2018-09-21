@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con) => {
+module.exports.run = async (bot, botconfig, fs, message, args, con, server, serverName) => {
     if (message.author.id == "228163151219130368") {
         let txtmessage = args.slice(0).join(' ');
         if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }

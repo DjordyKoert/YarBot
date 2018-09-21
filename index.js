@@ -75,15 +75,15 @@ fs.readdir("./cmds/", (err, files) => {
 
 //On message handler
 bot.on("message", async message => {
-  console.log(message.author);
-  if (message.author.bot) return;     //message 'verdijwnt' hier
-  console.log(message.author);
-  if (!message.content.startsWith(prefix)) return; //Als bovenste weg is verdwijnt het ook
+  if (message.author.bot) return;
+  if (!message.content.startsWith(botconfig.prefix)) return;
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
-  console.log(args)
+  let server = message.guild.id;
+  let serverName = message.guild.name;
 
-  if(cmd){ cmd.run(bot, botconfig, fs, message, args, con); } else { console.log("not a command!")}
+  if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server, serverName); }
+  else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
 bot.login(botconfig.token);

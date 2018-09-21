@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con) => {
+module.exports.run = async (bot, botconfig, fs, message, args, con, server, serverName) => {
     if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
     //if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     if (!message.mentions.users.first()) { message.reply("Mention someone"); message.react("❌"); return; };

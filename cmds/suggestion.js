@@ -1,4 +1,4 @@
-module.exports.run = async (bot, message, fs, args, con) => {
+module.exports.run = async (bot, botconfig, fs, message, args, con, server, serverName) => {
     if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
     let BeforeSplit = args.slice(1).join(' ');
     let Split = BeforeSplit.split(',')
