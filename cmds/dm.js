@@ -2,7 +2,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server, serv
     if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
     //if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     if (!message.mentions.users.first()) { message.reply("Mention someone"); message.react("❌"); return; };
-    let dmUser = message.mentions.users.first().id;
+    let dmUser = message.mentions.users.first();
     let dmMessage = args.slice(1).join(' ');
     if (dmMessage == "") { message.react("❌"); message.reply("Empty dm message"); return; }
 
@@ -31,8 +31,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server, serv
             message.delete();
             return;
         }
-        bot.users.get(dmUser).send(`${dmMessage}\n\nThis message was sent by:  ${message.author.username}`);
-        message.author.send(`✅ DM succesfully send to <@${dmUser}>`)
+        bot.users.get(dmUser.id).send(`${dmMessage}\n\nThis message was sent by:  ${message.author.username}`);
+        message.author.send(`✅ DM succesfully send to ${dmUser.username}`)
         message.delete();
         return;
     });
