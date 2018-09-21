@@ -6,10 +6,6 @@ const mysql = require("mysql");
 const prefix = botconfig.prefix;
 let sql;
 
-bot.on("ready", async () => {
-  console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
-  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
-});
 
 //Create DB connection
 const con = mysql.createConnection({
@@ -24,6 +20,11 @@ const con = mysql.createConnection({
 con.connect(err => {
   if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
   console.log("Connected to database");
+});
+
+bot.on("ready", async () => {
+  console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
+  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
 });
 
 //Bot join server
@@ -186,6 +187,11 @@ bot.on("message", async message => {
     return;
   };
 
+
+
+
+
+
   //Guild commands
   if (message.author.bot) return;
   if (!message.content.startsWith(prefix)) return;
@@ -259,9 +265,10 @@ bot.on("message", async message => {
       if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
       //Remove announcement channel
       switch (true) {
+        //Als er een channel geremoved moet worden
         case (args[0] == "remove"):
           if (args[0] == "remove" && args[1] == "announcement") {
-            con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND announcementID !=''`, (err, rows) => {
               if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
               if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
               sql = `UPDATE ssetup SET announcementID="" WHERE serverID='${server}'`;
@@ -269,13 +276,23 @@ bot.on("message", async message => {
               message.react("✅");
               return;
             });
-          } else { message.react("❌"); message.reply("Correct usage: >setup remove (channelProperty)"); return; }
+          } else if (args[0] == "remove" && args[1] == "dm") {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND dmID !=''`, (err, rows) => {
+              if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+              if (rows.length == 0) { message.reply("No dm channel available"); message.react("❌"); return; }
+              sql = `UPDATE ssetup SET dmID="" WHERE serverID='${server}'`;
+              con.query(sql);
+              message.react("✅");
+              return;
+            });
+          }
+          else { message.react("❌"); message.reply("Correct usage: >setup remove (channelProperty)"); return; }
           break;
         //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
         case (args[0] == "announcement"):
           //Show current announcement channel
           if (!message.mentions.channels.first()) {
-            con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND announcementID !=''`, (err, rows) => {
               if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
               if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
               message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
@@ -284,11 +301,11 @@ bot.on("message", async message => {
           }
           else {
             let announcementID = message.mentions.channels.first();
-            con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND announcementID !=''`, (err, rows) => {
               if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
               //If server doesn't already have an announcement channel
               if (rows.length == 0) {
-                sql = `INSERT INTO ssetup (serverID, serverName,announcementID) VALUES ('${server}', '${serverName}','${announcementID.id}')`;
+                sql = `UPDATE ssetup SET announcementID='${announcementID.id}', serverName='${serverName}'WHERE serverID='${server}'`;
                 con.query(sql);
                 message.react("✅");
                 console.log(`New annoucement channel in server: ${server}, announcementID=${announcementID}`)
@@ -302,7 +319,37 @@ bot.on("message", async message => {
             });
           }
           break;
-        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n|> announcement"); message.react("❌"); return; }
+        case (args[0] == "dm"):
+          //Show current dm channel
+          if (!message.mentions.channels.first()) {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND dmID !=''`, (err, rows) => {
+              if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+              if (rows.length == 0) { message.reply("No dm channel available"); message.react("❌"); return; }
+              message.reply(`the current dm channel is: <#${rows[0].dmID}>`);
+              return;
+            });
+          }
+          else {
+            let dmID = message.mentions.channels.first();
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND dmID !=''`, (err, rows) => {
+              if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+              //If server doesn't already have an dm channel
+              if (rows.length == 0) {
+                sql = `UPDATE ssetup SET dmID='${dmID.id}', serverName='${serverName}'WHERE serverID='${server}'`;
+                con.query(sql);
+                message.react("✅");
+                console.log(`New annoucement channel in server: ${server}, dmID=${dmID}`)
+              } //If server already has an dm channel
+              else {
+                sql = `UPDATE ssetup SET dmID='${dmID.id}', serverName='${serverName}'WHERE serverID='${server}'`;
+                con.query(sql);
+                message.react("✅");
+                console.log(`Updated annoucement channel in server: ${server}, dmID=${dmID}`)
+              }
+            });
+          }
+          break;
+        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n| announcement\n| dm"); message.react("❌"); return; }
       }
       break;
     //DM command
@@ -313,8 +360,34 @@ bot.on("message", async message => {
       let dmMessage = args.slice(1).join(' ');
       if (dmMessage == "") { message.react("❌"); message.reply("Empty dm message"); return; }
 
-      bot.users.get(dmUser).send(`${dmMessage}\n\nThis message was sent by: ${message.author.username}`);
-      message.delete();
+      con.query(`SELECT * FROM ssetup WHERE serverID='${server}' AND dmID !=''`, (err, rows) => {
+        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        //Geen channel available
+        if (rows.length == 0) {
+          message.delete; message.reply("No dm channel available").then(msg => {
+            msg.delete(8000)
+          })
+            .catch((err) => {
+              if (err) { let errstack = err.stack; let extraMessage = "DM message remove error"; createLog(fs, err, errstack, extraMessage); }
+            });
+          return;
+        }
+        //If message.channel is not same as in database
+        if (message.channel.id != rows[0].dmID) {
+          message.reply(`The >dm command only works in a dm channel\nCurrent DM Channel: <#${rows[0].dmID}>`)
+            .then(msg => {
+              msg.delete(8000)
+            })
+            .catch((err) => {
+              if (err) { let errstack = err.stack; let extraMessage = "DM message remove error"; createLog(fs, err, errstack, extraMessage); }
+            });
+          message.delete();
+          return;
+        }
+        bot.users.get(dmUser).send(`${dmMessage}\n\nThis message was sent by:  ${message.author.username}`);
+        message.delete();
+        return;
+      });
       break;
     //Help Command
     case "help":
@@ -337,7 +410,7 @@ bot.on("message", async message => {
             value: "```8ball -Ask the magic 8ball a question```"
           }, {
             name: "Admin Commands",
-            value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelProperty) #(yourchannel)\n\nsay -Let the bot send a message```"
+            value: "```setup -Create an (channelProperty) channel or see current (channelProperty) channel\n|Usage: setup (channelProperty) #(yourchannel)\n\nsay -Let the bot send a message```"
           }, {
             name: "Note",
             value: "```Prefix : '>'```"
