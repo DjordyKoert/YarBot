@@ -20,6 +20,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">setup (channelproperty) #(channel_name)" -Create an announcement channel in your server
 ##### Usage:
 >">setup" -Shows current announcement channel name <br />
+>">setup remove (channelproperty)" -Shows current announcement channel name <br />
 >">setup (channelproperty) #(channel_name)" -Create an announcement channel in your server 
 ###### Allowed channelproperty's:
 *announcement*

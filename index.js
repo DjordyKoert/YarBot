@@ -108,7 +108,7 @@ bot.on("message", async message => {
         if (message.author.id == "228163151219130368") {
           let txtmessage = args.slice(0).join(' ');
           if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }
-          con.query(`SELECT * FROM ssetup`, (err, rows) => {
+          con.query(`SELECT * FROM ssetup WHERE announcementID !=""`, (err, rows) => {
             if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
             let i = 0;
             whileLoop();
@@ -121,7 +121,7 @@ bot.on("message", async message => {
                 try {
                   bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
                 } catch (err) { //If bot can't reach the server. AKA bot left the server
-                  if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an announcement. Leaving server..."; createLog(fs, err, errstack, extraMessage); }
+                  if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an announcement. Removing server from database"; createLog(fs, err, errstack, extraMessage); }
                   sql = `DELETE FROM ssetup WHERE serverID='${getServerID}'`;
                   con.query(sql);
                 }
@@ -171,7 +171,7 @@ bot.on("message", async message => {
               value: "```8ball -Ask the magic 8ball a question```"
             }, {
               name: "Admin Commands",
-              value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelID) #(yourchannel)\n\nsay -Let the bot send a message```"
+              value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelProperty) #(yourchannel)\n\nsay -Let the bot send a message```"
             }, {
               name: "Note",
               value: "```Prefix : '>'```"
@@ -258,50 +258,53 @@ bot.on("message", async message => {
       //Check permissions
       if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
       //Remove announcement channel
-      if (args[0] == "remove") {
-        con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-          if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-          if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
-          sql = `DELETE FROM ssetup WHERE serverID='${server}'`;
-          con.query(sql);
-          message.react("✅");
-          return;
-        });
-      }
-      //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
-      else if (args[0] == "announcement") {
-        //Show current announcement channel
-        if (!message.mentions.channels.first()) {
-          con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-            if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-            if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
-            message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
-            return;
-          });
-        }
-        else {
-          let announcementID = message.mentions.channels.first();
-          con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
-            if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-            //If server doesn't already have an announcement channel
-            if (rows.length == 0) {
-              sql = `INSERT INTO ssetup (serverID, serverName,announcementID) VALUES ('${server}', '${serverName}','${announcementID.id}')`;
+      switch (true) {
+        case (args[0] == "remove"):
+          if (args[0] == "remove" && args[1] == "announcement") {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+              if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+              if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
+              sql = `UPDATE ssetup SET announcementID="" WHERE serverID='${server}'`;
               con.query(sql);
               message.react("✅");
-              console.log(`New annoucement channel in server: ${server}, announcementID=${announcementID}`)
-            } //If server already has an announcement channel
-            else {
-              sql = `UPDATE ssetup SET announcementID='${announcementID.id}', serverName='${serverName}'WHERE serverID='${server}'`;
-              con.query(sql);
-              message.react("✅");
-              console.log(`Updated annoucement channel in server: ${server}, announcementID=${announcementID}`)
-            }
-          });
-        }
+              return;
+            });
+          } else { message.react("❌"); message.reply("Correct usage: >setup remove (channelProperty)"); return; }
+          break;
+        //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
+        case (args[0] == "announcement"):
+          //Show current announcement channel
+          if (!message.mentions.channels.first()) {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+              if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+              if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
+              message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
+              return;
+            });
+          }
+          else {
+            let announcementID = message.mentions.channels.first();
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+              if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+              //If server doesn't already have an announcement channel
+              if (rows.length == 0) {
+                sql = `INSERT INTO ssetup (serverID, serverName,announcementID) VALUES ('${server}', '${serverName}','${announcementID.id}')`;
+                con.query(sql);
+                message.react("✅");
+                console.log(`New annoucement channel in server: ${server}, announcementID=${announcementID}`)
+              } //If server already has an announcement channel
+              else {
+                sql = `UPDATE ssetup SET announcementID='${announcementID.id}', serverName='${serverName}'WHERE serverID='${server}'`;
+                con.query(sql);
+                message.react("✅");
+                console.log(`Updated annoucement channel in server: ${server}, announcementID=${announcementID}`)
+              }
+            });
+          }
+          break;
+        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n|> announcement"); message.react("❌"); return; }
       }
-      else { message.reply("\nUsage: >setup (channelID) (#channelname)\nAllowed channelID's:\n|> announcement"); message.react("❌"); return; }
       break;
-
     //Help Command
     case "help":
       message.author.send({
@@ -323,7 +326,7 @@ bot.on("message", async message => {
             value: "```8ball -Ask the magic 8ball a question```"
           }, {
             name: "Admin Commands",
-            value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelID) #(yourchannel)\n\nsay -Let the bot send a message```"
+            value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelProperty) #(yourchannel)\n\nsay -Let the bot send a message```"
           }, {
             name: "Note",
             value: "```Prefix : '>'```"
