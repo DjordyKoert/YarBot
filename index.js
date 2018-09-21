@@ -305,6 +305,17 @@ bot.on("message", async message => {
         default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n|> announcement"); message.react("❌"); return; }
       }
       break;
+    //DM command
+    case "dm":
+      if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; };
+      if (!message.mentions.users.first()) { message.reply("Mention someone"); message.react("❌"); return; };
+      let dmUser = message.mentions.users.first().id;
+      let dmMessage = args.slice(1).join(' ');
+      if (dmMessage == "") { message.react("❌"); message.reply("Empty dm message"); return; }
+
+      bot.users.get(dmUser).send(`${dmMessage}\n\nThis message was sent by: ${message.author.username}`);
+      message.delete();
+      break;
     //Help Command
     case "help":
       message.author.send({
