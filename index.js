@@ -26,6 +26,15 @@ con.connect(err => {
   console.log("Connected to database");
 });
 
+//Prevent db from sleeping
+whileLoop();
+function whileLoop() {
+  setInterval(function () {
+    con.query(`SELECT serverID FROM ssetup WHERE announcementID = ""`, (err) => {
+      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    });
+  }, 30000) //Timer for DB
+}
 
 //Bot join server
 bot.on("guildCreate", guild => {
