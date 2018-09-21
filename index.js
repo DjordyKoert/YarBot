@@ -30,17 +30,15 @@ con.connect(err => {
 //Bot join server
 bot.on("guildCreate", guild => {
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
-  let server = guild.id;
-  let serverName = guild.name;
-  con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+  con.query(`SELECT * FROM ssetup WHERE serverID='${guild.id}'`, (err, rows) => {
     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     //If server doesn't already have an announcement channel
     if (rows.length == 0) {
-      con.query(`INSERT INTO ssetup (serverID, serverName) VALUES ('${server}', '${serverName}')`);
-      console.log(`New server added: ${server}`)
+      con.query(`INSERT INTO ssetup (serverID, serverName) VALUES ('${guild.id}', '${guild.name}')`);
+      console.log(`New server added: ${guild.id}`)
     } else {
-      con.query(`UPDATE ssetup SET serverName='${serverName}'WHERE serverID='${server}'`);
-      console.log(`Updated serverName from: ${server}, serverName=${serverName}`)
+      con.query(`UPDATE ssetup SET serverName='${guild.name}'WHERE serverID='${guild.id}'`);
+      console.log(`Updated serverName from: ${guild.id}, serverName=${guild.name}`)
     }
   });
 })
@@ -49,11 +47,11 @@ bot.on("guildCreate", guild => {
 bot.on("guildDelete", guild => {
   let server = guild.id;
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
-  con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+  con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}'`, (err, rows) => {
     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     if (!rows.length == 0) {
-      con.query(`DELETE FROM ssetup WHERE serverID='${server}'`);
-      console.log(`Server removed, because bot left: ${server}`)
+      con.query(`DELETE FROM ssetup WHERE serverID='${server.id}'`);
+      console.log(`Server removed, because bot left: ${server.id}`)
     }
   });
 })
@@ -80,10 +78,9 @@ bot.on("message", async message => {
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
-  let server = message.guild.id;
-  let serverName = message.guild.name;
+  let server = message.guild;
 
-  if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server, serverName); }
+  if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
 bot.login(botconfig.token);

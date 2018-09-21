@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server, serverName) => {
+module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     //Create embed
     if (args[0]) {
         args[0] = args[0].toLowerCase();

@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server, serverName) => {
+module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
     //if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     if (!message.mentions.users.first()) { message.reply("Mention someone"); message.react("❌"); return; };
@@ -32,7 +32,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server, serv
             return;
         }
         bot.users.get(dmUser.id).send(`${dmMessage}\n\nThis message was sent by:  ${message.author.username}`);
-        message.author.send(`✅ DM succesfully send to ${dmUser.username}`)
+        message.author.send(`✅ DM succesfully send to ${dmUser.username}\n` + "```Message:\n" + dmMessage + "```")
         message.delete();
         return;
     });
