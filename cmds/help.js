@@ -49,7 +49,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     value: "```8ball -Ask the magic 8ball a question```"
                 }, {
                     name: "Admin Commands",
-                    value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelProperty) #(yourchannel)\n\nsay -Let the bot send a message```"
+                    value: "```setup -Create an announcement channel or see current announcement channel\n|Usage: setup (channelProperty) #(channel)\nFor more info: >help setup\n\nsay -Let the bot send a message```"
                 }, {
                     name: "Note",
                     value: "```Prefix : '>'```"

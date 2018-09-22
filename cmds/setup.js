@@ -64,7 +64,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             break;
         case (args[0] == "dm"):
             //Show current dm channel
-            if (!message.mentions.channels.first()) {
+            if (!message.mentions.channels.first() && args[1] != "all") {
                 con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
                     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                     if (rows.length == 0) { message.reply("No dm channel available"); message.react("❌"); return; }
@@ -73,24 +73,24 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 });
             }
             else {
-                let dmID = message.mentions.channels.first();
+                let dmID = message.mentions.channels.first() || args[1];
                 con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
                     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                     //If server doesn't already have an dm channel
                     if (rows.length == 0) {
-                        con.query(`UPDATE ssetup SET dmID='${dmID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                        con.query(`UPDATE ssetup SET dmID='${dmID}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                         message.react("✅");
-                        console.log(`New annoucement channel in server: ${server.id}, dmID=${dmID}`)
+                        console.log(`New dm channel in server: ${server.id}, dmID=${dmID}`)
                     } //If server already has an dm channel
                     else {
-                        con.query(`UPDATE ssetup SET dmID='${dmID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                        con.query(`UPDATE ssetup SET dmID='${dmID}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                         message.react("✅");
-                        console.log(`Updated annoucement channel in server: ${server.id}, dmID=${dmID}`)
+                        console.log(`Updated dm channel in server: ${server.id}, dmID=${dmID}`)
                     }
                 });
             }
             break;
-        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n| announcement\n| dm"); message.react("❌"); return; }
+        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n| announcement\n| dm/all"); message.react("❌"); return; }
     }
     
     //Create an errorLog
@@ -122,6 +122,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 module.exports.help = {
     name: "setup",
     help: "Create an announcement or dm channel, See current [channelProperty] channel or Remove an announcement or dm channel.",
-    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]"),
+    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| dm\n\nIn some cases #[channel] can also be 'all'"),
     permissions: "MANAGE_CHANNELS"
 }

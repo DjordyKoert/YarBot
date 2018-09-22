@@ -6,19 +6,32 @@ const mysql = require("mysql");
 const prefix = botconfig.prefix;
 bot.commands = new Discord.Collection();
 
+let botTesting = true;
+
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
 });
 
-//Create DB connection
-const con = mysql.createConnection({
-  host: botconfig.host,
-  password: botconfig.password,
-  port: botconfig.port,
-  user: botconfig.user,
-  database: botconfig.database
-});
+if (botTesting) {
+  con = mysql.createConnection({
+    host: botconfig.testhost,
+    port: botconfig.testport,
+    user: botconfig.testuser,
+    database: botconfig.testdatabase
+  });
+  console.log("Entering testing mode...")
+}
+else {
+  con = mysql.createConnection({
+    host: botconfig.host,
+    password: botconfig.password,
+    port: botconfig.port,
+    user: botconfig.user,
+    database: botconfig.database
+  });
+  console.log("Entering online mode...")
+}
 
 //DB error
 con.connect(err => {
