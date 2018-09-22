@@ -16,7 +16,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">invite" -Get invite link to invite bot to your server in PM. <br />
 >">8ball [msg]" -Ask the magic 8ball a question. <br />
 >">suggestion [title], [suggestion]" -Sends a suggestion to add in the bot to DjordyKoert [Yarink]
-#### Admin Commands
+#### Admin Command
 >">setup [channelproperty] #[channel_name]" -Create an announcement channel in your server
 ##### Usage:
 >">setup" -Shows current announcement channel name <br />
@@ -27,7 +27,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 *dm* --Channel in which the >dm command can be executed
 ###### Permission[s] needed to use command:
 MANAGE_CHANNELS
-
+#### Admin Command
 >">say (message)" -Let the bot speak!
 ##### Usage:
 >">say (message)" -Let the bot send a message
