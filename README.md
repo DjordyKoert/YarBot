@@ -15,7 +15,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">help" -Get help message in PM. <br />
 >">invite" -Get invite link to invite bot to your server in PM. <br />
 >">8ball [msg]" -Ask the magic 8ball a question. <br />
->">suggestion [title] [suggestion]" -Sends a suggestion to add in the bot to DjordyKoert [Yarink]
+>">suggestion [title], [suggestion]" -Sends a suggestion to add in the bot to DjordyKoert [Yarink]
 #### Admin Commands
 >">setup [channelproperty] #[channel_name]" -Create an announcement channel in your server
 ##### Usage:

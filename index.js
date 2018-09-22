@@ -26,16 +26,6 @@ con.connect(err => {
   console.log("Connected to database");
 });
 
-//Prevent db from sleeping
-whileLoop();
-function whileLoop() {
-  setInterval(function () {
-    con.query(`SELECT serverID FROM ssetup WHERE announcementID = ""`, (err) => {
-      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-    });
-  }, 30000) //Timer for DB
-}
-
 //Bot join server
 bot.on("guildCreate", guild => {
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
@@ -72,7 +62,6 @@ fs.readdir("./cmds/", (err, files) => {
   if (jsfiles.length <= 0) return console.log("No command files found");
 
   console.log(`Found ${jsfiles.length} command files`);
-  console.log(jsfiles);
   jsfiles.forEach((f, i) => {
     let props = require(`./cmds/${f}`);
     console.log(`${i + 1}: ${f} loaded!`);
