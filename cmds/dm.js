@@ -31,7 +31,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             return;
         }
         bot.users.get(dmUser.id).send(`${dmMessage}\n\nThis message was sent by: ${message.author.tag}`);
-        message.author.send(`✅ DM succesfully send to ${dmUser.username}\n` + "```Message:\n" + dmMessage + "```")
+        message.author.send(`✅ DM succesfully send to ${dmUser.tag}\n` + "```Message:\n" + dmMessage + "```")
         message.delete();
         return;
     });
