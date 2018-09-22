@@ -4,7 +4,7 @@
 https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&permissions=8
 
 ## Commands
-### Private Message commands
+### Private Message commands (All Private Message commands work in Servers and in DM's)
 >">help [command]" -Get help message in PM. <br />
 >">invite" -Get invite link to invite bot to your server in PM. <br />
 >">suggestion [title] [suggestion]" -Sends a suggestion to add in the bot to DjordyKoert [Yarink]
