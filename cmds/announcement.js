@@ -2,6 +2,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (message.author.id == "228163151219130368") {
         let txtmessage = args.slice(0).join(' ');
         if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }
+        console.log('\x1b[42m%s\x1b[0m: ',"Starting announcement");
         con.query(`SELECT * FROM ssetup WHERE announcementID !=""`, (err, rows) => {
             if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
             let i = 0;
@@ -10,8 +11,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 setTimeout(function () {
                     var getServerID = rows[i].serverID;
                     var getAnnouncementID = rows[i].announcementID;
-                    console.log(getServerID);
-                    console.log(getAnnouncementID);
+                    console.log("\x1b[32m",getServerID);
+                    console.log("\x1b[35m",getAnnouncementID);
                     try {
                         bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
                     } catch (err) { //If bot can't reach the server. AKA bot left the server

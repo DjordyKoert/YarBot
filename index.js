@@ -20,7 +20,7 @@ if (botTesting) {
     user: botconfig.testuser,
     database: botconfig.testdatabase
   });
-  console.log("Entering testing mode...")
+  console.log('\x1b[31m%s\x1b[0m: ',"Entering testing mode...")
 }
 else {
   con = mysql.createConnection({
@@ -30,13 +30,13 @@ else {
     user: botconfig.user,
     database: botconfig.database
   });
-  console.log("Entering online mode...")
+  console.log('\x1b[32m%s\x1b[0m: ',"Entering online mode...")
 }
 
 //DB error
 con.connect(err => {
   if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-  console.log("Connected to database");
+  console.log('\x1b[32m%s\x1b[0m: ',"Connected to database");
 });
 
 //Bot join server
@@ -77,7 +77,7 @@ fs.readdir("./cmds/", (err, files) => {
   console.log(`Found ${jsfiles.length} command files`);
   jsfiles.forEach((f, i) => {
     let props = require(`./cmds/${f}`);
-    console.log(`${i + 1}: ${f} loaded!`);
+    console.log('\x1b[33m%s\x1b[0m: ',`${i + 1}: ${f} loaded!`);
     bot.commands.set(props.help.name, props);
   });
 });
