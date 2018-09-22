@@ -21,31 +21,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         }
     });
     message.react("✅");
-
-    //Create an errorLog
-    function createLog(fs, err, errstack, extraMessage) {
-        if (!extraMessage) extraMessage = "";
-
-        let date = new Date();
-        let currentYear = date.getFullYear();
-        let currentMonth = date.getMonth();
-        let currentDay = date.getDate();
-        let currentHours = date.getHours();
-        let currentMinutes = date.getMinutes();
-        let currentSecs = date.getSeconds();
-        let error_date = (`${currentDay}-${currentMonth}-${currentYear}_${currentHours}.${currentMinutes}.${currentSecs}`)
-
-        //Create logs folder if it doens't exist
-        if (!fs.existsSync("./logs")) {
-            fs.mkdirSync("./logs");
-            console.log("Creating ./logs folder");
-        }
-
-        fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n${errstack}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
-            if (err) return console.error(err);
-            console.log(`Succefully made logs file: err_${error_date}.txt`);
-        });
-    }
 }
 
 module.exports.help = {

@@ -3,7 +3,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (args[0]) {
         args[0] = args[0].toLowerCase();
         let cmd = bot.commands.get(args[0]);
-        console.log(cmd)
         if (cmd) {
             message.author.send({
                 embed: {
@@ -26,7 +25,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     }
                 }
             });
-        } else { message.reply("not a command!") }
+            message.react("✅");
+        } else { message.reply("not a command!"); message.react("❌"); }
     }
     else {
         message.author.send({
