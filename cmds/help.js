@@ -33,7 +33,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 title: "Help",
                 footer: {
                     icon: bot.user.avatarURL,
-                    text: "Made by Yarink#4414"
+                    text: "Made by Yarink#4414 [SourceCode (github)](https://github.com/DjordyKoert/YarBot)"
                 },
                 author: {
                     name: `👑 List of commands for ${bot.user.username}👑`,
