@@ -6,7 +6,7 @@ const mysql = require("mysql");
 const prefix = botconfig.prefix;
 bot.commands = new Discord.Collection();
 
-let botTesting = true;
+let botTesting = false;
 
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
