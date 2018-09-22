@@ -3,7 +3,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
   if (!args[0]) { message.reply("Shaking this ball won't do anything if there isn't a question."); message.react("❌"); return; }
   const answers = [
     "Probably",
-    "The almighty 8ball says yes",
+    "yes",
     "Perhaps",
     "Most likely",
     "My sources say no",
@@ -14,6 +14,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     'Better not tell you now.',
     'Very doubtful.',
     'Yes - definitely.',
+    'Nope',
+    'I hate to say this but... no'
   ]
   let answer = answers[Math.floor(Math.random() * answers.length)];
   message.reply(`The 8ball says: ${answer}`);

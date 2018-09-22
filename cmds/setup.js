@@ -40,7 +40,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND announcementID !=''`, (err, rows) => {
                     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                     if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
-                    message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
+                    message.reply(`the current announcement channel is: ${rows[0].announcementID}`);
                     return;
                 });
             }
@@ -68,7 +68,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
                     if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                     if (rows.length == 0) { message.reply("No dm channel available"); message.react("❌"); return; }
-                    message.reply(`the current dm channel is: <#${rows[0].dmID}>`);
+                    message.reply(`the current dm channel is: ${rows[0].dmID}`);
                     return;
                 });
             }
