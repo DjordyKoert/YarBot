@@ -3,11 +3,13 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (args[0]) {
         args[0] = args[0].toLowerCase();
         let cmd = bot.commands.get(args[0]);
+        console.log(cmd)
         if (cmd) {
             message.author.send({
                 embed: {
                     color: (133, 0, 255),
                     title: ">" + cmd.help.name,
+                    description: `[SourceCode (github)](https://github.com/DjordyKoert/YarBot/blob/master/cmds/${args.shift().toLowerCase()}.js)`,
                     fields: [{
                         name: "Info",
                         value: "```" + cmd.help.help + "```",
@@ -31,9 +33,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             embed: {
                 color: (133, 0, 255),
                 title: "Help",
+                description: "[SourceCode (github)](https://github.com/DjordyKoert/YarBot)",
                 footer: {
                     icon: bot.user.avatarURL,
-                    text: "Made by Yarink#4414 [SourceCode (github)](https://github.com/DjordyKoert/YarBot)"
+                    text: "Made by Yarink#4414"
                 },
                 author: {
                     name: `👑 List of commands for ${bot.user.username}👑`,
