@@ -4,7 +4,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         if (message.channel.type == "dm") { message.reply("Sending >help to user can only be done in a server"); message.react("❌"); return; }
         if (!message.member.hasPermission("KICK_MEMBERS")) { message.reply("No permission to send help to user"); message.react("❌"); return; };
         let Mention = message.mentions.users.first();
-        bot.users.get(Mention.id).send({ //Fix dit crasht
+        bot.users.get(Mention.id).send({
             embed: {
                 color: (133, 0, 255),
                 title: "Help",
