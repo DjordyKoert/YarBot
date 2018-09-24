@@ -1,4 +1,4 @@
-//const botconfig = require("./botconfig.json");
+const botconfig = require("./botconfig.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({ disableEveryone: true });
 const fs = require("fs");
@@ -20,7 +20,7 @@ if (botTesting) {
     user: botconfig.testuser,
     database: botconfig.testdatabase
   });
-  console.log('\x1b[31m%s\x1b[0m: ',"Entering testing mode...")
+  console.log('\x1b[31m%s\x1b[0m: ', "Entering testing mode...")
 }
 else {
   con = mysql.createConnection({
@@ -30,13 +30,13 @@ else {
     user: botconfig.user,
     database: botconfig.database
   });
-  console.log('\x1b[32m%s\x1b[0m: ',"Entering online mode...")
+  console.log('\x1b[32m%s\x1b[0m: ', "Entering online mode...")
 }
 
 //DB error
 con.connect(err => {
   if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-  console.log('\x1b[32m%s\x1b[0m: ',"Connected to database");
+  console.log('\x1b[32m%s\x1b[0m: ', "Connected to database");
 });
 
 //Bot join server
@@ -77,7 +77,7 @@ fs.readdir("./cmds/", (err, files) => {
   console.log(`Found ${jsfiles.length} command files`);
   jsfiles.forEach((f, i) => {
     let props = require(`./cmds/${f}`);
-    console.log('\x1b[33m%s\x1b[0m: ',`${i + 1}: ${f} loaded!`);
+    console.log('\x1b[33m%s\x1b[0m: ', `${i + 1}: ${f} loaded!`);
     bot.commands.set(props.help.name, props);
   });
 });
@@ -90,8 +90,35 @@ bot.on("message", async message => {
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
   let server = message.guild;
+  console.log(command);
+  console.log(cmd);
 
-  if (cmd) { cmd.run(bot,/* botconfig,*/ fs, message, args, con, server); }
+  if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
 bot.login(botconfig.token);
+
+//Create an errorLog
+function createLog(fs, err, errstack, extraMessage) {
+  if (!extraMessage) extraMessage = "";
+
+  let date = new Date();
+  let currentYear = date.getFullYear();
+  let currentMonth = date.getMonth();
+  let currentDay = date.getDate();
+  let currentHours = date.getHours();
+  let currentMinutes = date.getMinutes();
+  let currentSecs = date.getSeconds();
+  let error_date = (`${currentDay}-${currentMonth}-${currentYear}_${currentHours}.${currentMinutes}.${currentSecs}`)
+
+  //Create logs folder if it doens't exist
+  if (!fs.existsSync("./logs")) {
+    fs.mkdirSync("./logs");
+    console.log("Creating ./logs folder");
+  }
+
+  fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n${errstack}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
+    if (err) return console.error(err);
+    console.log(`Succefully made logs file: err_${error_date}.txt`);
+  });
+}
