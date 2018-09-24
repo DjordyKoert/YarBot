@@ -1,5 +1,5 @@
 module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
-    if (message.author.id == botconfig.Owner_id) {
+    if (message.author.id == process.env.Owner_id) {
         let txtmessage = args.slice(0).join(' ');
         if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }
         console.log('\x1b[42m%s\x1b[0m: ',"Starting announcement");

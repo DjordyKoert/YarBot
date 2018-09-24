@@ -1,9 +1,9 @@
-const botconfig = require("./botconfig.json");
+const botconfig = require("./process.env.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({ disableEveryone: true });
 const fs = require("fs");
 const mysql = require("mysql");
-const prefix = botconfig.prefix;
+const prefix = process.env.prefix;
 bot.commands = new Discord.Collection();
 
 let botTesting = false;
@@ -15,20 +15,20 @@ bot.on("ready", async () => {
 
 if (botTesting) {
   con = mysql.createConnection({
-    host: botconfig.testhost,
-    port: botconfig.testport,
-    user: botconfig.testuser,
-    database: botconfig.testdatabase
+    host: process.env.testhost,
+    port: process.env.testport,
+    user: process.env.testuser,
+    database: process.env.testdatabase
   });
   console.log('\x1b[31m%s\x1b[0m: ',"Entering testing mode...")
 }
 else {
   con = mysql.createConnection({
-    host: botconfig.host,
-    password: botconfig.password,
-    port: botconfig.port,
-    user: botconfig.user,
-    database: botconfig.database
+    host: process.env.host,
+    password: process.env.password,
+    port: process.env.port,
+    user: process.env.user,
+    database: process.env.database
   });
   console.log('\x1b[32m%s\x1b[0m: ',"Entering online mode...")
 }
@@ -85,7 +85,7 @@ fs.readdir("./cmds/", (err, files) => {
 //On message handler
 bot.on("message", async message => {
   if (message.author.bot) return;
-  if (!message.content.startsWith(botconfig.prefix)) return;
+  if (!message.content.startsWith(process.env.prefix)) return;
   const args = message.content.slice(prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
@@ -94,4 +94,4 @@ bot.on("message", async message => {
   if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
-bot.login(botconfig.token);
+bot.login(process.env.token);
