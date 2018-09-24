@@ -1,4 +1,4 @@
-const botconfig = require("./botconfig.json");
+//const botconfig = require("./botconfig.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({ disableEveryone: true });
 const fs = require("fs");
@@ -91,7 +91,7 @@ bot.on("message", async message => {
   let cmd = bot.commands.get(command);
   let server = message.guild;
 
-  if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
+  if (cmd) { cmd.run(bot,/* botconfig,*/ fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
 bot.login(botconfig.token);

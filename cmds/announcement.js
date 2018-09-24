@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+module.exports.run = async (bot, /* botconfig,*/ fs, message, args, con, server) => {
     if (message.author.id == botconfig.Owner_id) {
         let txtmessage = args.slice(0).join(' ');
         if (txtmessage == "") { message.react("❌"); message.reply("Empty announcement message"); return; }
