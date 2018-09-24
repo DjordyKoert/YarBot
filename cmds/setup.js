@@ -1,5 +1,4 @@
 module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
-    if (botconfig.status == "disabled") return message.reply("Bot is disabled by developer");
     //Check permissions
     if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     //Check if server is in database before continuing
