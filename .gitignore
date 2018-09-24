@@ -1,3 +1,4 @@
 botconfig.json
 run.bat
 logs/*
+node_modules/
