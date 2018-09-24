@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+module.exports.run = async (bot, /* botconfig,*/ fs, message, args, con, server) => {
     //Check permissions
     if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     //Check if server is in database before continuing

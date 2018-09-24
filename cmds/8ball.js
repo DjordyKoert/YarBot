@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+module.exports.run = async (bot, /* botconfig,*/ fs, message, args, con, server) => {
   if (!args[0]) { message.reply("Shaking this ball won't do anything if there isn't a question."); message.react("❌"); return; }
   const answers = [
     "Probably",

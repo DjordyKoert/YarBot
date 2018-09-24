@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+module.exports.run = async (bot, /* botconfig,*/ fs, message, args, con, server) => {
     //if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     if (!message.mentions.users.first()) { message.reply("Mention someone"); message.react("❌"); return; };
     let dmUser = message.mentions.users.first();

@@ -1,4 +1,4 @@
-module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+module.exports.run = async (bot, /* botconfig,*/ fs, message, args, con, server) => {
     let BeforeSplit = args.slice(0).join(' ');
     let Split = BeforeSplit.split(',')
     if (!Split[0]) { message.react("❌"); message.reply("Please enter a title, usage: >suggestion (title)**,** (suggestion)"); return; }
