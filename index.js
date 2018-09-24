@@ -90,9 +90,7 @@ bot.on("message", async message => {
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
   let server = message.guild;
-  console.log(command);
-  console.log(cmd);
-
+  
   if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });

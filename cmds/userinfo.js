@@ -1,4 +1,5 @@
 module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+    if (message.channel.type == "dm") { message.reply("This command can only be used in a server"); message.react("❌"); return; }
     const sm = require('string-similarity')
 
     let members = [];
@@ -11,15 +12,13 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
     let match = sm.findBestMatch(args.join(' '), members);
     let username = match.bestMatch.target; // This now holds the username of the bestmatch.
-
-    let member = message.guild.members.get(memberids[members.indexOf(username)]); // We can view this from the out, in. It first gets the index of username, and finds it in members, and since indexes and members have the same values/length it will show the ID there, which can be translated into members.
-
+    let member = message.guild.members.get(memberids[members.indexOf(username)]);
     message.channel.send(`First user found: ${member}`)
 }
 
 module.exports.help = {
-    name: "8ball",
-    help: "Ask the magic 8ball a question.",
-    usage: ">8ball [question]",
+    name: "userinfo",
+    help: "Search user info",
+    usage: ">userinfo [username]",
     permissions: "NONE"
 }

@@ -1,4 +1,5 @@
 module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+    if (message.channel.type == "dm") { message.reply("This command can only be used in a server"); message.react("❌"); return; }
     //Check permissions
     if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     //Check if server is in database before continuing
