@@ -1,6 +1,7 @@
 module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     //Help to user
     if (message.mentions.users.first() == args[0]) {
+        if (!message.member.hasPermission("KICK_MEMBERS")) { message.reply("No permission to send help to user"); message.react("❌"); return; };
         let Mention = message.mentions.users.first();
         bot.users.get(Mention.id).send({ //Fix dit crasht
             embed: {
@@ -99,5 +100,5 @@ module.exports.help = {
     name: "help",
     help: "Show list of command or info about a command",
     usage: ">help [command]",
-    permissions: "NONE"
+    permissions: "NONE/KICK_MEMBERS (sending help to specific user)"
 }
