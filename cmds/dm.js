@@ -1,5 +1,6 @@
 module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (message.channel.type == "dm") { message.reply("This command can only be used in a server"); message.react("❌"); return; }
+    if (message.mentions.channels.first() == args[0] || message.mentions.everyone || message.mentions.roles.first() == args[0]) { message.reply("Mention someone"); message.react("❌"); return; };
     //if (!message.member.hasPermission("ADMINISTRATOR")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     if (message.mentions.members.first() != args[0] && !args[0]) { message.reply("Mention someone"); message.react("❌"); return; };
     //Autocomplete user
