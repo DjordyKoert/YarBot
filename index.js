@@ -1,4 +1,4 @@
-const botconfig = require("./process.env.json");
+//const botconfig = require("./process.env.json");
 const Discord = require("discord.js");
 const bot = new Discord.Client({ disableEveryone: true });
 const fs = require("fs");
