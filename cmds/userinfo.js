@@ -13,12 +13,14 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
     let match = sm.findBestMatch(args.join(' '), members);
     let username = match.bestMatch.target; // This now holds the username of the bestmatch.
-    let member = message.mentions.members.first() || message.guild.members.get(memberids[members.indexOf(username)]);
+    let member = message.mentions.members.first() || message.guild.members.get(memberids[members.indexOf(username)])
     //Send info
+    if (member.nickname === null) nickname = "None";
+    else nickname = member.nickname;
     message.channel.send({
         embed: {
             color: (133, 0, 255),
-            description: `Username: ${member.user.tag}`,
+            description: `Username: ${member.user.tag} (${member.user.id})`,
             footer: {
                 icon: bot.user.avatarURL,
                 text: "Made by Yarink#4414"
@@ -27,8 +29,14 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 name: `${member.user.username}'s info`,
             },
             fields: [{
-                name: `Joined ${server.name} at:`,
-                value: '```' + member.joinedAt + '```'
+                name: `Nickname:`,
+                value: '```' + nickname + '```'
+            }, {
+                name: `Bot:`,
+                value: '```' + member.user.bot + '```'
+            }, {
+                name: `Joined discord at:`,
+                value: '```' + member.user.createdAt + '```'
             }, {
                 name: `Joined ${server.name} at:`,
                 value: '```' + member.joinedAt + '```'
