@@ -33,6 +33,9 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 name: `Nickname:`,
                 value: '```' + nickname + '```'
             }, {
+                name: `Highest role:`,
+                value: "" + member.highestRole
+            }, {
                 name: `Bot:`,
                 value: '```' + member.user.bot + '```'
             }, {
