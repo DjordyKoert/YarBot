@@ -30,6 +30,14 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     message.react("✅");
                     return;
                 });
+            } else if (args[0] == "remove" && args[1] == "ticket") {
+                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
+                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                    if (rows.length == 0) { message.reply("No ticket channel available"); message.react("❌"); return; }
+                    con.query(`UPDATE ssetup SET ticketID="" WHERE serverID='${server.id}'`);
+                    message.react("✅");
+                    return;
+                });
             }
             else { message.react("❌"); message.reply("Correct usage: >setup remove (channelProperty)"); return; }
             break;
@@ -90,9 +98,38 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 });
             }
             break;
-        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n| announcement\n| dm/all"); message.react("❌"); return; }
+        //Ticket channel
+        case (args[0] == "ticket"):
+            //Show current ticket channel
+            if (!message.mentions.channels.first()) {
+                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
+                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                    if (rows.length == 0) { message.reply("No ticket channel available"); message.react("❌"); return; }
+                    message.reply(`the current ticket channel is: ${rows[0].ticketID}`);
+                    return;
+                });
+            }
+            else {
+                let ticketID = message.mentions.channels.first();
+                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
+                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                    //If server doesn't already have an ticket channel
+                    if (rows.length == 0) {
+                        con.query(`UPDATE ssetup SET ticketID='${ticketID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                        message.react("✅");
+                        console.log(`New ticket channel in server: ${server.id}, ticketID=${ticketID}`)
+                    } //If server already has an ticket channel
+                    else {
+                        con.query(`UPDATE ssetup SET ticketID='${ticketID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                        message.react("✅");
+                        console.log(`Updated ticket channel in server: ${server.id}, ticketID=${ticketID}`)
+                    }
+                });
+            }
+            break;
+        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n| announcement\n| dm/all\n| ticket"); message.react("❌"); return; }
     }
-    
+
     //Create an errorLog
     function createLog(fs, err, errstack, extraMessage) {
         if (!extraMessage) extraMessage = "";
@@ -122,6 +159,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 module.exports.help = {
     name: "setup",
     help: "Create an announcement or dm channel, See current [channelProperty] channel or Remove an announcement or dm channel.",
-    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| dm\n\nIn some cases #[channel] can also be 'all'"),
+    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| dm\n| ticket\n\nIn some cases #[channel] can also be 'all'"),
     permissions: "MANAGE_CHANNELS"
 }
