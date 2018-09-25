@@ -25,11 +25,11 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">setup remove [channelproperty]" -Shows current announcement channel name <br />
 >">setup [channelproperty] #[channel_name]" -Create an announcement channel in your server 
 ###### Allowed channelProperty's:
-*announcement* --Channel where announcements are put in 
-*ticket* --Channel in which the tickets created with '>ticket' will be send to<br /><br />
----{The below channelProperty's allows 'all' to be used in #[channel]}---<br />
-*dm* --Channel in which the '>dm' command can be executed <br />
-*commands* --Channel in which the commands can be executed
+>*announcement* --Channel where announcements are put in<br />  
+>*ticket* --Channel in which the tickets created with '>ticket' will be send to<br /><br />
+>---{The below channelProperty's allows 'all' to be used in #[channel]}---<br />
+>*dm* --Channel in which the '>dm' command can be executed <br />
+>*commands* --Channel in which the commands can be executed
 
 ###### Permission[s] needed to use command:
 MANAGE_CHANNELS
