@@ -26,7 +26,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">setup [channelproperty] #[channel_name]" -Create an announcement channel in your server 
 ###### Allowed channelProperty's:
 >*announcement* --Channel where announcements are put in<br />  
->*ticket* --Channel in which the tickets created with '>ticket' will be send to<br /><br />
+>*ticket* --Channel in which the tickets created with '>ticket' will be send to<br />
 >---{The below channelProperty's allows 'all' to be used in #[channel]}---<br />
 >*dm* --Channel in which the '>dm' command can be executed <br />
 >*commands* --Channel in which the commands can be executed
