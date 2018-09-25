@@ -8,13 +8,13 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     let memberids = [];
 
     message.guild.members.forEach(function (member) {
-        members.push(member.user.username);
+        members.push(member.displayName);
         memberids.push(member.id);
     });
 
     let match = sm.findBestMatch(args.join(' '), members);
-    let username = match.bestMatch.target; // This now holds the username of the bestmatch.
-    let member = message.mentions.members.first() || message.guild.members.get(memberids[members.indexOf(username)])
+    let username = match.bestMatch.target;
+    let member = message.mentions.members.first() || message.guild.members.get(memberids[members.indexOf(username)]);
     //Send info
     if (member.nickname === null) nickname = "None";
     else nickname = member.nickname;

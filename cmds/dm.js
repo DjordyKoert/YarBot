@@ -10,7 +10,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     let memberids = [];
 
     message.guild.members.forEach(function (member) {
-        members.push(member.user.username);
+        members.push(member.displayName);
         memberids.push(member.id);
     });
 
