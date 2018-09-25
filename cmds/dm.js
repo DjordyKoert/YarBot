@@ -26,8 +26,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         //Geen channel available
         if (rows.length == 0) {}
         //If message.channel is not same as in database
-        else if (message.channel.id != rows[0].dmID && rows[0].dmID != "all") {
-            message.reply(`The >dm command only works in a dm channel\nCurrent DM Channel: <#${rows[0].dmID}>`)
+        else if (message.channel != rows[0].dmID && rows[0].dmID != "all") {
+            message.reply(`The >dm command only works in a dm channel\nCurrent DM Channel: ${rows[0].dmID}`)
                 .then(msg => {
                     msg.delete(8000)
                 })

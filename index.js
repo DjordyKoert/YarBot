@@ -12,8 +12,8 @@ columns = [
   "serverID",
   "serverName",
   "announcementID",
-  "dmID",
   "ticketID",
+  "dmID",
   "commandsID"
 ]
 
@@ -94,6 +94,20 @@ bot.on("guildDelete", guild => {
   });
 })
 
+//Channeldelete
+bot.on("channelDelete", channel => {
+  for (let i = 2; i < (columns.length - 2); i++) {
+    con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel.id}'`, err => {
+      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    });
+  }
+  for (let i = 4; i < (columns.length); i++) {
+    con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel}'`, err => {
+      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    });
+  }
+});
+
 //Command Handler
 fs.readdir("./cmds/", (err, files) => {
   if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
@@ -108,14 +122,6 @@ fs.readdir("./cmds/", (err, files) => {
   });
 });
 
-//Channeldelete
-bot.on("channelDelete", channel => {
-  for (let i = 2; i < (columns.length); i++) {
-    con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel.id}'`, err => {
-      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-    });
-  }
-});
 
 //On message handler
 bot.on("message", async message => {
@@ -130,7 +136,7 @@ bot.on("message", async message => {
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
       if (rows.length != 0) {
-        if (message.channel.id != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
+        if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
           message.reply(`commands only works in: ${rows[0].commandsID}`)
           return;
         }

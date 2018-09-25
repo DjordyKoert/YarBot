@@ -44,14 +44,14 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                 //If server doesn't already have an x channel
                 if (rows.length == 0) {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA.id}`)
+                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
                 } //If server already has an x channel
                 else {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA.id}`)
+                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
                 }
             });
         }
