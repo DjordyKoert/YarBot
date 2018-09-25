@@ -10,7 +10,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             console.log(`New server added: ${server.id}, Trough setup command`);
         }
     });
-    //Remove announcement channel
+    //Remove channel
     if (!args[0]) { message.reply("Use >help setup to see how the command works"); message.react("❌"); return; }
     //Als er een channel geremoved moet worden
     else if (args[0] == "remove" && (args[1] == "ticket" || args[1] == "announcement" || args[1] == "dm" || args[1] == "commands")) {
@@ -44,14 +44,14 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                 //If server doesn't already have an x channel
                 if (rows.length == 0) {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
+                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA.id}`)
                 } //If server already has an x channel
                 else {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
+                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA.id}`)
                 }
             });
         }
@@ -78,12 +78,12 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 if (rows.length == 0) {
                     con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty}`)
+                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty.id}`)
                 } //If server already has an x channel
                 else {
                     con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty}`)
+                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty.id}`)
                 }
             });
         }
@@ -118,6 +118,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 module.exports.help = {
     name: "setup",
     help: "Create an announcement or dm channel, See current [channelProperty] channel or Remove an announcement or dm channel.",
-    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| ticket\n\n---{Accepts 'all' as #[channel]}---\n| commands\n| dm"),
+    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| ticket\n\n---{Accepts 'all' as #[channel]}---\n| commands\n| dm\n(If a commands or dm channel is not set it defaults to 'all'"),
     permissions: "MANAGE_CHANNELS"
 }

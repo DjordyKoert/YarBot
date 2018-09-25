@@ -24,19 +24,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
         if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
         //Geen channel available
-        if (rows.length == 0) {
-            message.delete();
-            message.reply("No dm channel available").then(msg => {
-                msg.delete(8000)
-            })
-                .catch((err) => {
-                    if (err) { let errstack = err.stack; let extraMessage = "DM message remove error"; createLog(fs, err, errstack, extraMessage); }
-                });
-            return;
-        }
+        if (rows.length == 0) {}
         //If message.channel is not same as in database
-        if (message.channel != rows[0].dmID && rows[0].dmID != "all") {
-            message.reply(`The >dm command only works in a dm channel\nCurrent DM Channel: ${rows[0].dmID}`)
+        else if (message.channel.id != rows[0].dmID && rows[0].dmID != "all") {
+            message.reply(`The >dm command only works in a dm channel\nCurrent DM Channel: <#${rows[0].dmID}>`)
                 .then(msg => {
                     msg.delete(8000)
                 })
@@ -46,7 +37,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             message.delete();
             return;
         }
-        bot.users.get(member.user.id).send(`${dmMessage}\n\nThis message was sent by: ${message.author.tag}`);
+        bot.users.get(member.user.id).send("```" + dmMessage + "```" + `\nThis message was sent by: ${message.author.tag} in ${message.guild.name}`);
         message.author.send(`✅ DM succesfully send to ${member.user.tag}\n` + "```Message:\n" + dmMessage + "```")
         message.delete();
         return;
