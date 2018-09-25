@@ -8,6 +8,15 @@ bot.commands = new Discord.Collection();
 
 let botTesting = true;
 
+columns = [
+  "serverID",
+  "serverName",
+  "announcementID",
+  "dmID",
+  "ticketID",
+  "commandsID"
+]
+
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
@@ -39,6 +48,23 @@ con.connect(err => {
   console.log('\x1b[32m%s\x1b[0m: ', "Connected to database");
 });
 
+//Create table if not exist
+con.query(`CREATE TABLE IF NOT EXISTS ssetup (
+  serverID varchar(255) NOT NULL,
+  serverName varchar(255) NOT NULL,
+  announcementID varchar(255) NOT NULL,
+  dmID varchar(255) NOT NULL,
+  ticketID varchar(255) NOT NULL,
+  commandsID varchar(255) NOT NULL)`
+)
+
+//Create column if not exists
+columns.forEach(element => {
+  con.query(`ALTER TABLE ssetup ADD ${element} varchar(255) NOT NULL`, err => {
+    if (err) console.log(`${element} already exists`)
+    else console.log(`Creating ${element}...`)
+  });
+});
 //Bot join server
 bot.on("guildCreate", guild => {
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
@@ -91,6 +117,18 @@ bot.on("message", async message => {
   let cmd = bot.commands.get(command);
   let server = message.guild;
 
+  //Check of commands zijn toegestaan in deze channel
+  if (message.channel.type != "dm") {
+    con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
+      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+      if (rows.length != 0) {
+        if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
+          message.reply(`commands only works in: ${rows[0].commandsID}`)
+          return;
+        }
+      }
+    });
+  }
   if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
@@ -120,4 +158,3 @@ function createLog(fs, err, errstack, extraMessage) {
     console.log(`Succefully made logs file: err_${error_date}.txt`);
   });
 }
-
