@@ -13,6 +13,7 @@ columns = [
   "serverName",
   "announcementID",
   "ticketID",
+  //Support 'all'
   "dmID",
   "commandsID"
 ]
