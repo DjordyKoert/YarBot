@@ -108,6 +108,15 @@ fs.readdir("./cmds/", (err, files) => {
   });
 });
 
+//Channeldelete
+bot.on("channelDelete", channel => {
+  for (let i = 2; i < (columns.length); i++) {
+    con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel.id}'`, err => {
+      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    });
+  }
+});
+
 //On message handler
 bot.on("message", async message => {
   if (message.author.bot) return;
@@ -116,13 +125,12 @@ bot.on("message", async message => {
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
   let server = message.guild;
-
   //Check of commands zijn toegestaan in deze channel
   if (message.channel.type != "dm") {
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
       if (rows.length != 0) {
-        if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
+        if (message.channel.id != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
           message.reply(`commands only works in: ${rows[0].commandsID}`)
           return;
         }
@@ -133,6 +141,12 @@ bot.on("message", async message => {
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
 bot.login(botconfig.token);
+
+bot.on("error", (err) => {
+  if (err) {
+    let errstack = err.stack; createLog(fs, err, errstack); return;
+  }
+});
 
 //Create an errorLog
 function createLog(fs, err, errstack, extraMessage) {
