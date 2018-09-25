@@ -11,123 +11,82 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         }
     });
     //Remove announcement channel
-    switch (true) {
-        //Als er een channel geremoved moet worden
-        case (args[0] == "remove"):
-            if (args[0] == "remove" && args[1] == "announcement") {
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND announcementID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
-                    con.query(`UPDATE ssetup SET announcementID="" WHERE serverID='${server.id}'`);
+    if (!args[0]) { message.reply("Use >help setup to see how the command works"); message.react("❌"); return; }
+    //Als er een channel geremoved moet worden
+    else if (args[0] == "remove" && (args[1] == "ticket" || args[1] == "announcement" || args[1] == "dm" || args[1] == "commands")) {
+        con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[1]}ID !=''`, (err, rows) => {
+            if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+            if (rows.length == 0) { message.reply(`No ${args[1]} channel available`); message.react("❌"); return; }
+            con.query(`UPDATE ssetup SET ${args[1]}ID="" WHERE serverID='${server.id}'`);
+            message.react("✅");
+            return;
+        });
+
+    }
+    else if (args[0] == "remove" && (!args[1] || args[1] == "")) { message.react("❌"); message.reply("Correct usage: >setup remove (channelProperty)"); return; }
+
+
+    //Verkorte case versie support WEL All
+    else if (args[0] == "dm" || args[0] == "commands") {
+        //Show current x channel
+        if (!message.mentions.channels.first() && args[1] != "all") {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
+                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
+                if (args[0] == "dm") message.reply(`the current ticket channel is: ${rows[0].dmID}`);
+                else if (args[0] == "commands") message.reply(`the current commands channel is: ${rows[0].commandsID}`);
+                return;
+            });
+        }
+        else {
+            let channelPropertyA = message.mentions.channels.first() || args[1];
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
+                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                //If server doesn't already have an x channel
+                if (rows.length == 0) {
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    return;
-                });
-            } else if (args[0] == "remove" && args[1] == "dm") {
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    if (rows.length == 0) { message.reply("No dm channel available"); message.react("❌"); return; }
-                    con.query(`UPDATE ssetup SET dmID="" WHERE serverID='${server.id}'`);
+                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
+                } //If server already has an x channel
+                else {
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    return;
-                });
-            } else if (args[0] == "remove" && args[1] == "ticket") {
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    if (rows.length == 0) { message.reply("No ticket channel available"); message.react("❌"); return; }
-                    con.query(`UPDATE ssetup SET ticketID="" WHERE serverID='${server.id}'`);
+                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
+                }
+            });
+        }
+    }
+
+
+    //Verkorte case versie support GEEN All
+    else if (args[0] == "ticket" || args[0] == "announcement") {
+        //Show current x channel
+        if (!message.mentions.channels.first()) {
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
+                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
+                if (args[0] == "ticket") message.reply(`the current ticket channel is: <#${rows[0].ticketID}>`);
+                else if (args[0] == "announcement") message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
+                return;
+            });
+        }
+        else {
+            let channelProperty = message.mentions.channels.first();
+            con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
+                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                //If server doesn't already have x channel
+                if (rows.length == 0) {
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
                     message.react("✅");
-                    return;
-                });
-            }
-            else { message.react("❌"); message.reply("Correct usage: >setup remove (channelProperty)"); return; }
-            break;
-        //Als announcement channel niet gedelete moet worden en correcte command is ingevuld
-        case (args[0] == "announcement"):
-            //Show current announcement channel
-            if (!message.mentions.channels.first()) {
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND announcementID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    if (rows.length == 0) { message.reply("No announcement channel available"); message.react("❌"); return; }
-                    message.reply(`the current announcement channel is: ${rows[0].announcementID}`);
-                    return;
-                });
-            }
-            else {
-                let announcementID = message.mentions.channels.first();
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND announcementID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    //If server doesn't already have an announcement channel
-                    if (rows.length == 0) {
-                        con.query(`UPDATE ssetup SET announcementID='${announcementID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                        message.react("✅");
-                        console.log(`New annoucement channel in server: ${server.id}, announcementID=${announcementID}`)
-                    } //If server already has an announcement channel
-                    else {
-                        con.query(`UPDATE ssetup SET announcementID='${announcementID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                        message.react("✅");
-                        console.log(`Updated annoucement channel in server: ${server.id}, announcementID=${announcementID}`)
-                    }
-                });
-            }
-            break;
-        case (args[0] == "dm"):
-            //Show current dm channel
-            if (!message.mentions.channels.first() && args[1] != "all") {
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    if (rows.length == 0) { message.reply("No dm channel available"); message.react("❌"); return; }
-                    message.reply(`the current dm channel is: ${rows[0].dmID}`);
-                    return;
-                });
-            }
-            else {
-                let dmID = message.mentions.channels.first() || args[1];
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    //If server doesn't already have an dm channel
-                    if (rows.length == 0) {
-                        con.query(`UPDATE ssetup SET dmID='${dmID}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                        message.react("✅");
-                        console.log(`New dm channel in server: ${server.id}, dmID=${dmID}`)
-                    } //If server already has an dm channel
-                    else {
-                        con.query(`UPDATE ssetup SET dmID='${dmID}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                        message.react("✅");
-                        console.log(`Updated dm channel in server: ${server.id}, dmID=${dmID}`)
-                    }
-                });
-            }
-            break;
-        //Ticket channel
-        case (args[0] == "ticket"):
-            //Show current ticket channel
-            if (!message.mentions.channels.first()) {
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    if (rows.length == 0) { message.reply("No ticket channel available"); message.react("❌"); return; }
-                    message.reply(`the current ticket channel is: ${rows[0].ticketID}`);
-                    return;
-                });
-            }
-            else {
-                let ticketID = message.mentions.channels.first();
-                con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
-                    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                    //If server doesn't already have an ticket channel
-                    if (rows.length == 0) {
-                        con.query(`UPDATE ssetup SET ticketID='${ticketID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                        message.react("✅");
-                        console.log(`New ticket channel in server: ${server.id}, ticketID=${ticketID}`)
-                    } //If server already has an ticket channel
-                    else {
-                        con.query(`UPDATE ssetup SET ticketID='${ticketID.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                        message.react("✅");
-                        console.log(`Updated ticket channel in server: ${server.id}, ticketID=${ticketID}`)
-                    }
-                });
-            }
-            break;
-        default: { message.reply("\nUsage: >setup (channelProperty) (#channelname)\nAllowed channelProperty's:\n| announcement\n| dm/all\n| ticket"); message.react("❌"); return; }
+                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty}`)
+                } //If server already has an x channel
+                else {
+                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+                    message.react("✅");
+                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty}`)
+                }
+            });
+        }
     }
 
     //Create an errorLog
@@ -159,6 +118,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 module.exports.help = {
     name: "setup",
     help: "Create an announcement or dm channel, See current [channelProperty] channel or Remove an announcement or dm channel.",
-    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| dm\n| ticket\n\nIn some cases #[channel] can also be 'all'"),
+    usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| ticket\n\n---{Accepts 'all' as #[channel]}---\n| commands\n| dm"),
     permissions: "MANAGE_CHANNELS"
 }
