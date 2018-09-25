@@ -6,7 +6,7 @@ const mysql = require("mysql");
 const prefix = botconfig.prefix;
 bot.commands = new Discord.Collection();
 
-let botTesting = false;
+let botTesting = true;
 
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
@@ -90,7 +90,7 @@ bot.on("message", async message => {
   const command = args.shift().toLowerCase();
   let cmd = bot.commands.get(command);
   let server = message.guild;
-  
+
   if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
   else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
 });
@@ -120,3 +120,4 @@ function createLog(fs, err, errstack, extraMessage) {
     console.log(`Succefully made logs file: err_${error_date}.txt`);
   });
 }
+
