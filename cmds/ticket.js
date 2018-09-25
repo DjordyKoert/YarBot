@@ -24,10 +24,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     },
                     fields: [{
                         name: `**Information about ${message.author.username}:**`,
-                        value: `**Tag:** ${message.author.tag}\n**Joined ${message.guild.name} at:** ${memberAuthor.joinedAt}\n**In Voice Channel: **${voiceName}\nHighest Role: ${memberAuthor.highestRole}`
+                        value: `**Tag:** ${message.author.tag}\n**Joined ${message.guild.name} at:** ${memberAuthor.joinedAt}\n**In Voice Channel: **${voiceName}\n**Highest Role:** ${memberAuthor.highestRole}\n`
                     }, {
                         name: `**Message:**`,
-                        value: `${ticketMessage}\n\n\n**React with ✅ if the ticket has been completed.*\nTickets can't be closed after 1 Week\nThis message was created at: ${message.createdAt}`
+                        value: "```" + ticketMessage + "```" + `\n\n\n**React with ✅ if the ticket has been completed Or ❌ to deny ticket**\nTickets can't be closed after 1 Week\nThis message was created at: ${message.createdAt}`
                     }
                     ]
                 }
@@ -35,7 +35,11 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 message.react("🕐");
                 message.awaitReactions(reaction => {
                     if (reaction.emoji.name == '✅') {
-                        bot.users.get(messageAuthor).send(`Your ticket has been closed by ${reaction.users.first().tag} in ${reaction.message.channel.guild}`)
+                        bot.users.get(messageAuthor).send(`✅ Your ticket has been closed by __${reaction.users.first().tag}__ in __[${reaction.message.channel.guild}]__`)
+                        message.delete();
+                    }
+                    else if (reaction.emoji.name == '❌') {
+                        bot.users.get(messageAuthor).send(`❌ Your ticket has been denied by __${reaction.users.first().tag}__ in __[${reaction.message.channel.guild}]__\n\n**Your ticket:**` + "```" + ticketMessage + "```")
                         message.delete();
                     }
                 }, { time: 604800000 })
