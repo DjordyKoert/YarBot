@@ -12,11 +12,13 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             let ticketChannel = rows[0].ticketID;
             let memberAuthor = message.guild.members.get(message.author.id);
             let voiceName = memberAuthor.voiceChannel
+            let messageAuthor = message.author.id;
             if (!voiceName) voiceName = "None";
             else voiceName = memberAuthor.voiceChannel.name;
 
             bot.channels.get(ticketChannel).send({
                 embed: {
+                    color: (0, 0, 133),
                     author: {
                         name: `Ticket created by ${message.author.tag}`
                     },
@@ -25,7 +27,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                         value: `**Tag:** ${message.author.tag}\n**Joined ${message.guild.name} at:** ${memberAuthor.joinedAt}\n**In Voice Channel: **${voiceName}\nHighest Role: ${memberAuthor.highestRole}`
                     }, {
                         name: `**Message:**`,
-                        value: `${ticketMessage}\n\n\n**React with ✅(:white_check_mark:) if the ticket has been completed.*\nAfter 30min the ticket closes automatically`
+                        value: `${ticketMessage}\n\n\n**React with ✅ if the ticket has been completed.*\nTickets can't be closed after 1 Week\nThis message was created at: ${message.createdAt}`
                     }
                     ]
                 }
@@ -33,10 +35,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 message.react("🕐");
                 message.awaitReactions(reaction => {
                     if (reaction.emoji.name == '✅') {
-                        message.reply("Your ticket has been closed");
+                        bot.users.get(messageAuthor).send(`Your ticket has been closed by ${reaction.users.first().tag} in ${reaction.message.channel.guild}`)
                         message.delete();
                     }
-                }, { time: 1800000 })
+                }, { time: 604800000 })
             }).catch(err => {
                 console.log(err);
             })
