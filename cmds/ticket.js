@@ -9,6 +9,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             return;
         } else {
             let ticketMessage = args.slice(0).join(' ');
+            if (ticketMessage == "") { message.react("❌"); message.reply("Empty ticket message"); return; }
             let ticketChannel = rows[0].ticketID;
             let memberAuthor = message.guild.members.get(message.author.id);
             let voiceName = memberAuthor.voiceChannel
@@ -32,7 +33,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     ]
                 }
             }).then(function (message) {
-                message.react("🕐");
+
                 message.awaitReactions(reaction => {
                     if (reaction.emoji.name == '✅') {
                         bot.users.get(messageAuthor).send(`✅ Your ticket has been closed by __${reaction.users.first().tag}__ in __[${reaction.message.channel.guild}]__`)
@@ -43,6 +44,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                         message.delete();
                     }
                 }, { time: 604800000 })
+                message.react("🕐");
             }).catch(err => {
                 console.log(err);
             })
