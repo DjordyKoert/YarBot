@@ -136,16 +136,20 @@ bot.on("message", async message => {
   if (message.channel.type != "dm") {
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-      if (rows.length != 0) {
+      if (rows.length > 0) {
         if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
-          message.reply(`commands only works in: ${rows[0].commandsID}`)
+          //message.reply(`commands only work in: ${rows[0].commandsID}`);
+          message.react("❌");
           return;
+        }
+        else {
+          if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
+          else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
         }
       }
     });
   }
-  if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
-  else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
+
 });
 bot.login(botconfig.token);
 
