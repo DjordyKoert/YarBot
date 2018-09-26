@@ -59,5 +59,6 @@ module.exports.help = {
     name: "announcement",
     help: "[DEV ONLY] Send an announchement to every server that has setup an annoucement channel using the **setup** command.",
     usage: ">announcement [message]",
-    permissions: "[DEV ONLY]"
+    permissions: "[DEV ONLY]",
+    example: ">announcement This is an important message to all servers!"
 }

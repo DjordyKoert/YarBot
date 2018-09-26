@@ -25,5 +25,6 @@ module.exports.help = {
   name: "8ball",
   help: "Ask the magic 8ball a question.",
   usage: ">8ball [question]",
-  permissions: "NONE"
+  permissions: "NONE",
+  example: ">8ball is this bot cool?"
 }

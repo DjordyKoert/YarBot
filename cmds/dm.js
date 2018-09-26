@@ -72,5 +72,6 @@ module.exports.help = {
     name: "dm",
     help: "Send a dm to a user.",
     usage: ">dm @[user] [message]",
-    permissions: "NONE"
+    permissions: "NONE",
+    example: ">dm Yarbot you are cool"
 }

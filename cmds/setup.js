@@ -119,5 +119,6 @@ module.exports.help = {
     name: "setup",
     help: "Create an announcement or dm channel, See current [channelProperty] channel or Remove an announcement or dm channel.",
     usage: (">setup [channelProperty] #[channel]\n>setup [channelProperty]\n>setup remove [channelProperty]\n\nChannelProperty's:\n| announcement\n| ticket\n\n---{Accepts 'all' as #[channel]}---\n| commands\n| dm\n(If a commands or dm channel is not set it defaults to 'all'"),
-    permissions: "MANAGE_CHANNELS"
+    permissions: "MANAGE_CHANNELS",
+    example: ">setup commands #Bot-spam-channel"
 }

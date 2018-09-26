@@ -56,5 +56,6 @@ module.exports.help = {
     name: "ticket",
     help: "Open a ticket if you need help.",
     usage: ">ticket [message]",
-    permissions: "NONE"
+    permissions: "NONE",
+    example: ">ticket The bot won't work for me"
 }

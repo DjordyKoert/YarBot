@@ -56,5 +56,6 @@ module.exports.help = {
     name: "userinfo",
     help: "Search user info",
     usage: ">userinfo [username]",
-    permissions: "NONE"
+    permissions: "NONE",
+    example: ">userinfo Yarbot"
 }

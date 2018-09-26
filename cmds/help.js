@@ -18,7 +18,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 },
                 fields: [{
                     name: "General commands",
-                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]```"
+                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]```"
                 }, {
                     name: "🕶Fun Commands",
                     value: "```8ball```"
@@ -53,7 +53,11 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     }, {
                         name: "Permissions needed:",
                         value: "```" + cmd.help.permissions + "```"
-                    }],
+                    }, {
+                        name: "example:",
+                        value: "```" + cmd.help.example + "```"
+                    }
+                    ],
                     footer: {
                         icon: bot.user.avatarURL,
                         text: "Made by Yarink#4414"
@@ -79,7 +83,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 },
                 fields: [{
                     name: "General commands",
-                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]```"
+                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]```"
                 }, {
                     name: "🕶Fun Commands",
                     value: "```8ball```"
@@ -101,5 +105,6 @@ module.exports.help = {
     name: "help",
     help: "Show list of command or info about a command",
     usage: ">help [command]",
-    permissions: "NONE/KICK_MEMBERS (sending help to specific user)"
+    permissions: "NONE/KICK_MEMBERS (sending help to specific user)",
+    example: ">help 8ball"
 }

@@ -26,5 +26,6 @@ module.exports.help = {
     name: "suggestion",
     help: "Send a suggestion to the Developer to add something inside the bot.",
     usage: ">suggestion [title], [message]",
-    permissions: "NONE"
+    permissions: "NONE",
+    example: ">suggestion New command, Add a new command to make the bot even cooler"
 }

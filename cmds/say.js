@@ -11,5 +11,6 @@ module.exports.help = {
     name: "say",
     help: "Let the bot speak!",
     usage: ">say  [message]",
-    permissions: "ADMINISTRATOR"
+    permissions: "ADMINISTRATOR",
+    example: ">say Hi, I can speak now too"
   }

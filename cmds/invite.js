@@ -17,5 +17,6 @@ module.exports.help = {
     name: "invite",
     help: "Sends you the YarBot invite link",
     usage: ">invite",
-    permissions: "NONE"
+    permissions: "NONE",
+    example: ">invite"
 }
