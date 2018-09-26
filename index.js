@@ -6,7 +6,7 @@ const mysql = require("mysql");
 const prefix = botconfig.prefix;
 bot.commands = new Discord.Collection();
 
-let botTesting = true;
+let botTesting = false;
 
 columns = [
   "serverID",
@@ -66,6 +66,7 @@ columns.forEach(element => {
     else console.log(`Creating ${element}...`)
   });
 });
+
 //Bot join server
 bot.on("guildCreate", guild => {
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
@@ -137,6 +138,7 @@ bot.on("message", async message => {
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
       if (rows.length > 0) {
+        //Check if channel = DBid or DBid = all or user has permission or user is owner
         if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
           //message.reply(`commands only work in: ${rows[0].commandsID}`);
           message.react("❌");
@@ -146,10 +148,17 @@ bot.on("message", async message => {
           if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
           else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
         }
+      }//If DBid = ""
+      else {
+        if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
+        else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
       }
     });
   }
-
+  else {//if server is not in db already
+    if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
+    else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
+  }
 });
 bot.login(botconfig.token);
 
@@ -160,6 +169,8 @@ bot.on("error", (err) => {
 });
 
 //Create an errorLog
+
+
 function createLog(fs, err, errstack, extraMessage) {
   if (!extraMessage) extraMessage = "";
 
