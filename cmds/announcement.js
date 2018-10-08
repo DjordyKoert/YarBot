@@ -14,7 +14,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     console.log("\x1b[32m", getServerID);
                     console.log("\x1b[35m", getAnnouncementID);
                     try {
-                        bot.guilds.get(getServerID).channels.get(getAnnouncementID).send(`${txtmessage}`);
+                        bot.guilds.get(getServerID).channels.get(getAnnouncementID).send("```" + `${txtmessage}` + "```");
                     } catch (err) { //If bot can't reach the server. AKA bot left the server
                         if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an announcement. Removing server from database"; createLog(fs, err, errstack, extraMessage); }
                         con.query(`DELETE FROM ssetup WHERE serverID='${getServerID}'`);

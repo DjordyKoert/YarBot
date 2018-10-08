@@ -6,11 +6,12 @@ const mysql = require("mysql");
 const prefix = botconfig.prefix;
 bot.commands = new Discord.Collection();
 
-let botTesting = false;
+let botTesting = true;
 
 columns = [
   "serverID",
   "serverName",
+  "prefix",
   "announcementID",
   "ticketID",
   //Support 'all'
@@ -20,7 +21,21 @@ columns = [
 
 bot.on("ready", async () => {
   console.log(`${bot.user.username} has started, with ${bot.users.size} users, in ${bot.channels.size} channels in ${bot.guilds.size} servers.`);
-  bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
+  let statuses = [
+    `YarBot in ${bot.guilds.size} servers`,
+    `Use >help for a list of commands`,
+    `Created by Yarink#4414`
+  ]
+  let N = 0
+  //Auto-change status
+  setInterval(function () {
+    if (N != (statuses.length - 1)) { N++; }
+    else { N = 0; }
+    let status = statuses[N];
+
+    bot.user.setActivity(status);
+  }, 5000)
+
 });
 
 if (botTesting) {
@@ -53,6 +68,7 @@ con.connect(err => {
 con.query(`CREATE TABLE IF NOT EXISTS ssetup (
   serverID varchar(255) NOT NULL,
   serverName varchar(255) NOT NULL,
+  prefix varchar(1) NOT NULL,
   announcementID varchar(255) NOT NULL,
   dmID varchar(255) NOT NULL,
   ticketID varchar(255) NOT NULL,
@@ -103,7 +119,7 @@ bot.on("channelDelete", channel => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     });
   }
-  for (let i = 4; i < (columns.length); i++) {
+  for (let i = 5; i < (columns.length); i++) {
     con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel}'`, err => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     });
@@ -128,37 +144,48 @@ fs.readdir("./cmds/", (err, files) => {
 //On message handler
 bot.on("message", async message => {
   if (message.author.bot) return;
-  if (!message.content.startsWith(botconfig.prefix)) return;
-  const args = message.content.slice(prefix.length).trim().split(/ +/g);
-  const command = args.shift().toLowerCase();
-  let cmd = bot.commands.get(command);
-  let server = message.guild;
-  //Check of commands zijn toegestaan in deze channel
-  if (message.channel.type != "dm") {
-    con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
-      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-      if (rows.length > 0) {
-        //Check if channel = DBid or DBid = all or user has permission or user is owner
-        if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
-          //message.reply(`commands only work in: ${rows[0].commandsID}`);
-          message.react("❌");
-          return;
-        }
+  //Check server prefix
+  if (message.channel.type != "dm") server = message.guild.id;
+  else server = "noguild"
+  con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
+    try {
+      serverPrefix = rows[0].prefix
+    } catch (e) {
+      serverPrefix = ">";
+    }
+    if (!message.content.startsWith(serverPrefix)) return;
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    const command = args.shift().toLowerCase();
+    let cmd = bot.commands.get(command);
+    let server = message.guild;
+    //Check of commands zijn toegestaan in deze channel
+    if (message.channel.type != "dm") {
+      con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
+        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        if (rows.length > 0) {
+          //Check if channel = DBid or DBid = all or user has permission or user is owner
+          if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
+            //message.reply(`commands only work in: ${rows[0].commandsID}`);
+            message.react("❌");
+            return;
+          }
+          else {
+            if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
+            else { message.reply(`Not a command, use ${serverPrefix}help for a list of commands`); message.react("❌"); return; }
+          }
+        }//If DBid = ""
         else {
           if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
-          else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
+          else { message.reply(`Not a command, use ${serverPrefix}help for a list of commands`); message.react("❌"); return; }
         }
-      }//If DBid = ""
-      else {
-        if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
-        else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
-      }
-    });
-  }
-  else {//if server is not in db already
-    if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
-    else { message.reply("Not a command, use >help for a list of commands"); message.react("❌"); return; }
-  }
+      });
+    }
+    else {//if server is not in db already
+      if (cmd) { cmd.run(bot, botconfig, fs, message, args, con, server); }
+      else { message.reply(`Not a command, use ${serverPrefix}help for a list of commands`); message.react("❌"); return; }
+    }
+  });
 });
 bot.login(botconfig.token);
 

@@ -10,8 +10,23 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             console.log(`New server added: ${server.id}, Trough setup command`);
         }
     });
-    //Remove channel
     if (!args[0]) { message.reply("Use >help setup to see how the command works"); message.react("❌"); return; }
+    //Set server prefix
+    else if (args[0] == "prefix" && args[1]) {
+        if (args[1].length > 1) {
+            message.reply(`Please use only 1 symbol`);
+            message.react("❌");
+        }
+        else {
+            var format = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+            if (!format.test(args[1])) { message.reply("Please use a symbol"); message.react("❌"); return; }
+            con.query(`UPDATE ssetup SET prefix='${args[1]}' WHERE serverID='${server.id}'`);
+            message.reply(`New prefix: '${args[1]}'`)
+            message.react("✅");
+        }
+    }
+
+
     //Als er een channel geremoved moet worden
     else if (args[0] == "remove" && (args[1] == "ticket" || args[1] == "announcement" || args[1] == "dm" || args[1] == "commands")) {
         con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[1]}ID !=''`, (err, rows) => {
@@ -40,20 +55,9 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         }
         else {
             let channelPropertyA = message.mentions.channels.first() || args[1];
-            con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
-                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                //If server doesn't already have an x channel
-                if (rows.length == 0) {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                    message.react("✅");
-                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
-                } //If server already has an x channel
-                else {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                    message.react("✅");
-                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
-                }
-            });
+            con.query(`UPDATE ssetup SET ${args[0]}ID='${channelPropertyA}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+            message.react("✅");
+            console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelPropertyA}`)
         }
     }
 
@@ -72,20 +76,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         }
         else {
             let channelProperty = message.mentions.channels.first();
-            con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
-                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-                //If server doesn't already have x channel
-                if (rows.length == 0) {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                    message.react("✅");
-                    console.log(`New ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty.id}`)
-                } //If server already has an x channel
-                else {
-                    con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
-                    message.react("✅");
-                    console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty.id}`)
-                }
-            });
+            con.query(`UPDATE ssetup SET ${args[0]}ID='${channelProperty.id}', serverName='${server.name}'WHERE serverID='${server.id}'`);
+            message.react("✅");
+            console.log(`Updated ${args[0]} channel in server: ${server.id}, ${args[0]}ID=${channelProperty.id}`)
+
         }
     }
 
