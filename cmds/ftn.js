@@ -16,6 +16,37 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         "xbox1",
         "xb"
     ];
+    if (args[0] == "shop" || args[0] == "store") {
+        const superagent = require("superagent");
+        let dailyShop = weeklyShop = featuredImg = "";
+        let largest = 0;
+        let { body } = await superagent
+            .get("api.fortnitetracker.com/v1/store")
+            .set('TRN-Api-Key', botconfig.ftnapi);
+
+        body.forEach(element => {
+            if (element.storeCategory != "BRDailyStorefront") {
+                weeklyShop += `${element.name} - ${element.vBucks} Vbucks \n`
+                if (element.vBucks >= largest) {
+                    largest = element.vBucks;
+                    featuredImg = element.imageUrl;
+                }
+            }
+            else {
+                dailyShop += `${element.name} - ${element.vBucks} Vbucks \n`
+            }
+        });
+        let embed = new Discord.RichEmbed()
+            .setColor("#ff9800")
+            .setTitle("Fortnite Item shop")
+            .addField("Battle Royale",
+                `**Daily shop**\n ${dailyShop} \n\n **Featured Items**\n ${weeklyShop}`
+            )
+            .setImage(featuredImg)
+        message.author.send(embed)
+        message.react("✅");
+        return;
+    }
 
     if (!args[0]) { message.reply(`Please mention a username`); message.react("❌"); return; }
     let BeforeSplit = args.slice(0).join(' ');
@@ -36,8 +67,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
     }
 
-    if(playstation.indexOf(platform) > -1) platform = "psn";
-    else if(xbox.indexOf(platform) > -1) platform = "xb1";
+    if (playstation.indexOf(platform) > -1) platform = "psn";
+    else if (xbox.indexOf(platform) > -1) platform = "xb1";
 
     if (!Split[0]) { message.react("❌"); message.reply("Please enter username"); return; }
     ftn.user(username, platform).then(data => {
@@ -88,10 +119,12 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             .addField("Matches Played", matchesPlayed, true)
             .addField("Win%", winsPercentage, true)
             .addField("K/d", kd, true);
-        message.channel.send(embed)
+        message.channel.send(embed);
+        message.react("✅");
 
     }).catch(err => {
         console.log(err);
+        message.react("❌");
         message.channel.send(`Couldn't find ${username},  mode: ${gamemode}, platform: ${platform} in database.`)
     })
 
