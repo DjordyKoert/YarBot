@@ -25,8 +25,10 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">setup remove [channelproperty]" -Shows current announcement channel name <br />
 >">setup [channelproperty] #[channel_name]" -Create an announcement channel in your server 
 ###### Allowed channelProperty's:
+>"*prefix* --Set server prefix<br /> 
 >*announcement* --Channel where announcements are send to<br />  
 >*ticket* --Channel in which the tickets created with '>ticket' will be send to<br />
+>*ftnshop* --Channel in which fortnite shop updates get send too (around 00:05)<br />
 >---{The below channelProperty's allows 'all' to be used in #[channel]}---<br />
 >*dm* --Channel in which the '>dm' command can be executed <br />
 >*commands* --Channel in which the commands can be executed
@@ -39,3 +41,7 @@ MANAGE_CHANNELS
 >">say (message)" -Let the bot send a message
 ###### Permission(s) needed to use command:
 ADMINISTRATOR
+
+### Fortnite commands
+>">ftn [name]:[mode]:[platform] -Get someones fortnite stats
+>">ftn shop/store -Show current fortnite shop
