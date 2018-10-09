@@ -26,7 +26,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         }
     }
 
-
     //Als er een channel geremoved moet worden
     else if (args[0] == "remove" && (args[1] == "ticket" || args[1] == "announcement" || args[1] == "dm" || args[1] == "commands")) {
         con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[1]}ID !=''`, (err, rows) => {
@@ -48,7 +47,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
                 if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
                 if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
-                if (args[0] == "dm") message.reply(`the current ticket channel is: ${rows[0].dmID}`);
+                if (args[0] == "dm") message.reply(`the current dm channel is: ${rows[0].dmID}`);
                 else if (args[0] == "commands") message.reply(`the current commands channel is: ${rows[0].commandsID}`);
                 return;
             });
@@ -63,7 +62,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
 
     //Verkorte case versie support GEEN All
-    else if (args[0] == "ticket" || args[0] == "announcement") {
+    else if (args[0] == "ticket" || args[0] == "announcement" || args[0] == "ftnshop") {
         //Show current x channel
         if (!message.mentions.channels.first()) {
             con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
@@ -71,6 +70,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
                 if (args[0] == "ticket") message.reply(`the current ticket channel is: <#${rows[0].ticketID}>`);
                 else if (args[0] == "announcement") message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
+                else if (args[0] == "ftnshop") message.reply(`the current ftnshop channel is: <#${rows[0].ftnshopID}>`);
                 return;
             });
         }
