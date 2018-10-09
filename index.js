@@ -12,6 +12,7 @@ columns = [
   "serverID",
   "serverName",
   "prefix",
+  "ftnshopID",
   "announcementID",
   "ticketID",
   //Support 'all'
@@ -26,6 +27,7 @@ bot.on("ready", async () => {
     `Use >help for a list of commands`,
     `Created by Yarink#4414`
   ]
+  updateShop()
   let N = 0
   //Auto-change status
   setInterval(function () {
@@ -69,6 +71,7 @@ con.query(`CREATE TABLE IF NOT EXISTS ssetup (
   serverID varchar(255) NOT NULL,
   serverName varchar(255) NOT NULL,
   prefix varchar(1) NOT NULL,
+  ftnshopID varchar(30) NOT NULL,
   announcementID varchar(255) NOT NULL,
   dmID varchar(255) NOT NULL,
   ticketID varchar(255) NOT NULL,
@@ -119,7 +122,7 @@ bot.on("channelDelete", channel => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     });
   }
-  for (let i = 5; i < (columns.length); i++) {
+  for (let i = 6; i < (columns.length); i++) {
     con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel}'`, err => {
       if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
     });
@@ -221,4 +224,55 @@ function createLog(fs, err, errstack, extraMessage) {
     if (err) return console.error(err);
     console.log(`Succefully made logs file: err_${error_date}.txt`);
   });
+}
+
+
+function updateShop() {
+  const superagent = require("superagent");
+
+  setInterval(async function () {
+    let date = new Date();
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    if (hours == "0" && minutes == "5" && seconds <= "10") {
+      console.log("Updating shop...", hours, minutes, seconds)
+      let dailyShop = weeklyShop = featuredImg = "";
+      let largest = 0;
+      let { body } = await superagent
+        .get("api.fortnitetracker.com/v1/store")
+        .set('TRN-Api-Key', botconfig.ftnapi);
+
+      body.forEach(element => {
+        if (element.storeCategory != "BRDailyStorefront") {
+          weeklyShop += `${element.name} - ${element.vBucks} Vbucks \n`
+          if (element.vBucks >= largest) {
+            largest = element.vBucks;
+            featuredImg = element.imageUrl;
+          }
+        }
+        else {
+          dailyShop += `${element.name} - ${element.vBucks} Vbucks \n`
+        }
+      });
+      let shopembed = new Discord.RichEmbed()
+        .setColor("#ff9800")
+        .setTitle("Fortnite Item shop")
+        .addField("Battle Royale",
+          `**Daily shop**\n ${dailyShop} \n\n **Featured Items**\n ${weeklyShop}`
+        )
+        .setImage(featuredImg)
+      con.query(`SELECT * FROM ssetup WHERE ftnshopID!=""`, (err, rows) => {
+        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        rows.forEach(element => {
+          try {
+            bot.guilds.get(element.serverID).channels.get(element.ftnshopID).send(shopembed);
+          } catch (err) { //If bot can't reach the server. AKA bot left the server
+            if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an announcement. Removing server from database"; createLog(fs, err, errstack, extraMessage); }
+            con.query(`DELETE FROM ssetup WHERE serverID='${element.serverID}'`);
+          }
+        });
+      })
+    }
+  }, 10000)
 }
