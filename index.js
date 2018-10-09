@@ -154,7 +154,6 @@ bot.on("message", async message => {
     } catch (e) {
       serverPrefix = ">";
     }
-    console.log(serverPrefix)
     if (!message.content.startsWith(serverPrefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
