@@ -43,5 +43,5 @@ MANAGE_CHANNELS
 ADMINISTRATOR
 
 ### Fortnite commands
->">ftn [name]:[mode]:[platform] -Get someones fortnite stats
+>">ftn [name]:[mode]:[platform] -Get someones fortnite stats<br />
 >">ftn shop/store -Show current fortnite shop
