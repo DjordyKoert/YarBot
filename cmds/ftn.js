@@ -4,31 +4,84 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     const Client = require('fortnite');
     const ftn = new Client(botconfig.ftnapi);
 
+    const playstation = [
+        "psn",
+        "ps4",
+        "ps",
+        "playstation"
+    ];
+    const xbox = [
+        "xbox",
+        "xb1",
+        "xbox1",
+        "xb"
+    ];
+
     if (!args[0]) { message.reply(`Please mention a username`); message.react("❌"); return; }
     let BeforeSplit = args.slice(0).join(' ');
-    let Split = BeforeSplit.split(',')
+    let Split = BeforeSplit.split(':')
 
     let username = Split[0];
-    let platform = Split[1] || "pc"
+    let gamemode = Split[1] || "lifetime"
+    let platform = Split[2] || "pc"
+    //Remove spaces
     try {
         platform = platform.replace(/\s+/g, '');
-    }catch (e){
+    } catch (e) {
 
     }
+    try {
+        gamemode = gamemode.replace(/\s+/g, '');
+    } catch (e) {
+
+    }
+
+    if(playstation.indexOf(platform) > -1) platform = "psn";
+    else if(xbox.indexOf(platform) > -1) platform = "xb1";
+
     if (!Split[0]) { message.react("❌"); message.reply("Please enter username"); return; }
     ftn.user(username, platform).then(data => {
-        let lifetime = data.stats.lifetime;
-
-        let score = lifetime[6]['Score']
-        let matchesPlayed = lifetime[7]['Matches Played']
-        let wins = lifetime[8]['Wins']
-        let winsPercentage = lifetime[9]['Win%']
-        let kills = lifetime[10]['Kills']
-        let kd = lifetime[11]['K/d']
+        //Check which gamemode to get stats from
+        if (gamemode == "solo") {
+            stats = data.stats.solo;
+            score = stats.score
+            matchesPlayed = parseInt(stats.matches)
+            wins = parseInt(stats.wins)
+            winsPercentage = Math.floor(matchesPlayed / wins)
+            kills = stats.kills
+            kd = stats.kd
+        }
+        else if (gamemode == "duo") {
+            stats = data.stats.duo;
+            score = stats.score
+            matchesPlayed = parseInt(stats.matches)
+            wins = parseInt(stats.wins)
+            winsPercentage = Math.floor(matchesPlayed / wins)
+            kills = stats.kills
+            kd = stats.kd
+        }
+        else if (gamemode == "squad") {
+            stats = data.stats.squad;
+            score = stats.score
+            matchesPlayed = parseInt(stats.matches)
+            wins = parseInt(stats.wins)
+            winsPercentage = Math.floor(matchesPlayed / wins)
+            kills = stats.kills
+            kd = stats.kd
+        }
+        else {
+            stats = data.stats.lifetime;
+            score = stats[6]['Score']
+            matchesPlayed = stats[7]['Matches Played']
+            wins = stats[8]['Wins']
+            winsPercentage = stats[9]['Win%']
+            kills = stats[10]['Kills']
+            kd = stats[11]['K/d']
+        }
 
         let embed = new Discord.RichEmbed()
             .setTitle(`YarBot fortnite tracker`)
-            .setAuthor(username)
+            .setAuthor(`${username}, ${gamemode}, ${platform}`)
             .addField("Wins", wins, true)
             .addField("Kills", kills, true)
             .addField("Score", score, true)
@@ -39,7 +92,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
     }).catch(err => {
         console.log(err);
-        message.channel.send(`Couldn't find ${username}, platform: ${platform} in database.`)
+        message.channel.send(`Couldn't find ${username},  mode: ${gamemode}, platform: ${platform} in database.`)
     })
 
 }
@@ -47,7 +100,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 module.exports.help = {
     name: "ftn",
     help: "Show fortnite stats",
-    usage: ">ftn [name], [platform e.g:(pc, psn, xb1)]",
+    usage: ">ftn [name]:[mode]:[platform]",
     permissions: "NONE",
-    example: ">ftn Ninja"
+    example: ">ftn Ninja:lifetime:pc"
 }
