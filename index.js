@@ -149,10 +149,12 @@ bot.on("message", async message => {
   else server = "noguild"
   con.query(`SELECT * FROM ssetup WHERE serverID='${server}'`, (err, rows) => {
     try {
-      serverPrefix = rows[0].prefix
+      if (!rows[0].prefix) serverPrefix = ">";
+      else serverPrefix = rows[0].prefix;
     } catch (e) {
       serverPrefix = ">";
     }
+    console.log(serverPrefix)
     if (!message.content.startsWith(serverPrefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
