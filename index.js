@@ -235,7 +235,7 @@ function updateShop() {
     let hours = date.getHours();
     let minutes = date.getMinutes();
     let seconds = date.getSeconds();
-    if (hours == "0" && minutes == "5" && seconds <= "10") {
+    if (hours == "2" && minutes == "5" && seconds <= "10") {
       console.log("Updating shop...", hours, minutes, seconds)
       let dailyShop = weeklyShop = featuredImg = "";
       let largest = 0;

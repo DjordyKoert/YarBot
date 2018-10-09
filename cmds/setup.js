@@ -70,7 +70,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
                 if (args[0] == "ticket") message.reply(`the current ticket channel is: <#${rows[0].ticketID}>`);
                 else if (args[0] == "announcement") message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
-                else if (args[0] == "ftnshop") message.reply(`the current ftnshop channel is: <#${rows[0].ftnshopID}>`);
+                else if (args[0] == "ftnshop") message.reply(`the current ftnshop channel is: <#${rows[0].ftnshopID}> the shop will update at (00:05 GMT)`);
                 return;
             });
         }

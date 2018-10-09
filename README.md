@@ -28,7 +28,7 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >"*prefix* --Set server prefix<br /> 
 >*announcement* --Channel where announcements are send to<br />  
 >*ticket* --Channel in which the tickets created with '>ticket' will be send to<br />
->*ftnshop* --Channel in which fortnite shop updates get send too (around 00:05)<br />
+>*ftnshop* --Channel in which fortnite shop updates get send too (around 00:05 GMT)<br />
 >---{The below channelProperty's allows 'all' to be used in #[channel]}---<br />
 >*dm* --Channel in which the '>dm' command can be executed <br />
 >*commands* --Channel in which the commands can be executed
