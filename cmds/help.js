@@ -21,7 +21,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]\nftn [username]:[mode]:[platform]/shop```"
                 }, {
                     name: "🕶Fun Commands",
-                    value: "```8ball [question]\nurban [word]\ndoggo\nmeow```"
+                    value: "```8ball [question]\nurban [word]\ndoggo\ncat```"
                 }, {
                     name: "🛠 Admin Commands",
                     value: "```\nsetup [channelProperty] #[channel]\nsay```"
@@ -86,7 +86,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]\nftn [username]:[mode]:[platform]/shop```"
                 }, {
                     name: "🕶Fun Commands",
-                    value: "```8ball [question]\nurban [word]\ndoggo\nmeow```"
+                    value: "```8ball [question]\nurban [word]\ndoggo\ncat```"
                 }, {
                     name: "🛠 Admin Commands",
                     value: "```\nsetup [channelProperty] #[channel]\nsay```"

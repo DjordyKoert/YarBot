@@ -17,31 +17,24 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (args[0] == "shop" || args[0] == "store") {
         const superagent = require("superagent");
         let dailyShop = weeklyShop = featuredImg = "";
-        let largest = price = 0;
         let { body } = await superagent
             .get("https://fnbr.co/api/shop")
             .set('x-api-key', botconfig.FNBRapi);
 
         body.data.featured.forEach(element => {
-            if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
-            else price = parseInt(element.price.replace(",", "."))
             if (element.images.gallery == false) ImgLink = element.images.icon;
             else ImgLink = element.images.gallery
-            weeklyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
-
-            if (price >= largest) {
-                largest = price;
-                if (element.images.gallery == false) featuredImg = element.images.icon;
-                else featuredImg = element.images.gallery
-            }
+            weeklyShop += `[${element.name}](${ImgLink})- ${element.price} Vbucks \n`
         });
         body.data.daily.forEach(element => {
-            if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
-            else price = parseInt(element.price.replace(",", "."))
             if (element.images.gallery == false) ImgLink = element.images.icon;
             else ImgLink = element.images.gallery
-            dailyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
+            dailyShop += `[${element.name}](${ImgLink})- ${element.price} Vbucks \n`
         });
+        let length = body.data.featured.length - 1
+        let Rnum = Math.floor(Math.random() * length)
+        if (body.data.featured[Rnum].images.gallery == false) Rimg = body.data.featured[Rnum].images.icon;
+        else Rimg = body.data.featured[Rnum].images.gallery
         let embed = new Discord.RichEmbed()
             .setColor("#ff9800")
             .setTitle("Fortnite Item shop")
@@ -51,7 +44,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             .addField("Featured",
                 `${weeklyShop}\n`
             )
-            .setImage(featuredImg)
+            .setImage(Rimg)
         message.author.send(embed)
         message.react("✅");
         return;

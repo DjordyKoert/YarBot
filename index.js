@@ -239,31 +239,26 @@ function updateShop() {
       console.log("Updating shop...", hours, minutes, seconds)
       const superagent = require("superagent");
       let dailyShop = weeklyShop = featuredImg = "";
-      let largest = price = 0;
       let { body } = await superagent
         .get("https://fnbr.co/api/shop")
         .set('x-api-key', botconfig.FNBRapi);
 
       body.data.featured.forEach(element => {
-        if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
-        else price = parseInt(element.price.replace(",", "."))
         if (element.images.gallery == false) ImgLink = element.images.icon;
         else ImgLink = element.images.gallery
-        weeklyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
+        weeklyShop += `[${element.name}](${ImgLink})- ${element.price} Vbucks \n`
 
-        if (price >= largest) {
-          largest = price;
-          if (element.images.gallery == false) featuredImg = element.images.icon;
-          else featuredImg = element.images.gallery
-        }
       });
       body.data.daily.forEach(element => {
-        if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
-        else price = parseInt(element.price.replace(",", "."))
         if (element.images.gallery == false) ImgLink = element.images.icon;
         else ImgLink = element.images.gallery
-        dailyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
+        dailyShop += `[${element.name}](${ImgLink})- ${element.price} Vbucks \n`
       });
+      let length = body.data.featured.length - 1
+      let Rnum = Math.floor(Math.random() * length)
+      if (body.data.featured[Rnum].images.gallery == false) Rimg = body.data.featured[Rnum].images.icon;
+      else Rimg = body.data.featured[Rnum].images.gallery
+
       let shopembed = new Discord.RichEmbed()
         .setColor("#ff9800")
         .setTitle("Fortnite Item shop")
@@ -273,14 +268,14 @@ function updateShop() {
         .addField("Featured",
           `${weeklyShop}\n`
         )
-        .setImage(featuredImg)
+        .setImage(Rimg)
       con.query(`SELECT * FROM ssetup WHERE ftnshopID!=""`, (err, rows) => {
         if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
         rows.forEach(element => {
           try {
             bot.guilds.get(element.serverID).channels.get(element.ftnshopID).send(shopembed);
           } catch (err) { //If bot can't reach the server. AKA bot left the server
-            if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an announcement. Removing server from database"; createLog(fs, err, errstack, extraMessage); }
+            if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an fortnite Shop. Removing server from database"; createLog(fs, err, errstack, extraMessage); }
             con.query(`DELETE FROM ssetup WHERE serverID='${element.serverID}'`);
           }
         });

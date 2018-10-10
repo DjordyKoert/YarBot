@@ -17,6 +17,10 @@ https://discordapp.com/oauth2/authorize?&client_id=435166838318563328&scope=bot&
 >">help [command]" -Get help message in PM. <br />
 >">invite" -Get invite link to invite bot to your server in PM. <br />
 >">8ball [msg]" -Ask the magic 8ball a question. <br />
+>">doggo -Show doggo pic.<br />
+>">cat -Show cat pic<br />
+>">urban [word]" -Returns a definition of a word. <br />
+>">8ball [msg]" -Ask the magic 8ball a question. <br />
 >">suggestion [title], [suggestion]" -Sends a suggestion to add in the bot to DjordyKoert [Yarink]
 #### Admin Command
 >">setup [channelproperty] #[channel_name]" -Create an announcement channel in your server
