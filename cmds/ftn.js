@@ -4,6 +4,16 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     const Client = require('fortnite');
     const ftn = new Client(botconfig.ftnapi);
 
+    if (args[0] == "leaks") {
+        let embed = new Discord.RichEmbed()
+            .setColor("#ff9933")
+            .setTitle("Latest leak:")
+            .setDescription("[Fortnite Leaks Reddit](https://www.reddit.com/r/FortniteLeaks/comments/9my37w/v602_cosmetics/)")
+            .setImage("https://i.redd.it/sqtedkauzbr11.png")
+        message.channel.send(embed);
+        return;
+    }
+
     if (args[0] == "shop" || args[0] == "store") {
         const superagent = require("superagent");
         let dailyShop = weeklyShop = featuredImg = "";
