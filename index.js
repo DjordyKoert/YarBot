@@ -237,29 +237,41 @@ function updateShop() {
     let seconds = date.getSeconds();
     if (hours == "2" && minutes == "5" && seconds <= "10") {
       console.log("Updating shop...", hours, minutes, seconds)
+      const superagent = require("superagent");
       let dailyShop = weeklyShop = featuredImg = "";
-      let largest = 0;
+      let largest = price = 0;
       let { body } = await superagent
-        .get("api.fortnitetracker.com/v1/store")
-        .set('TRN-Api-Key', botconfig.ftnapi);
+        .get("https://fnbr.co/api/shop")
+        .set('x-api-key', botconfig.FNBRapi);
 
-      body.forEach(element => {
-        if (element.storeCategory != "BRDailyStorefront") {
-          weeklyShop += `${element.name} - ${element.vBucks} Vbucks \n`
-          if (element.vBucks >= largest) {
-            largest = element.vBucks;
-            featuredImg = element.imageUrl;
-          }
+      body.data.featured.forEach(element => {
+        if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
+        else price = parseInt(element.price.replace(",", "."))
+        if (element.images.gallery == false) ImgLink = element.images.icon;
+        else ImgLink = element.images.gallery
+        weeklyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
+
+        if (price >= largest) {
+          largest = price;
+          if (element.images.gallery == false) featuredImg = element.images.icon;
+          else featuredImg = element.images.gallery
         }
-        else {
-          dailyShop += `${element.name} - ${element.vBucks} Vbucks \n`
-        }
+      });
+      body.data.daily.forEach(element => {
+        if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
+        else price = parseInt(element.price.replace(",", "."))
+        if (element.images.gallery == false) ImgLink = element.images.icon;
+        else ImgLink = element.images.gallery
+        dailyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
       });
       let shopembed = new Discord.RichEmbed()
         .setColor("#ff9800")
         .setTitle("Fortnite Item shop")
-        .addField("Battle Royale",
-          `**Daily shop**\n ${dailyShop} \n\n **Featured Items**\n ${weeklyShop}`
+        .addField("Daily",
+          `${dailyShop} \n`
+        )
+        .addField("Featured",
+          `${weeklyShop}\n`
         )
         .setImage(featuredImg)
       con.query(`SELECT * FROM ssetup WHERE ftnshopID!=""`, (err, rows) => {

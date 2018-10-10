@@ -4,6 +4,50 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     const Client = require('fortnite');
     const ftn = new Client(botconfig.ftnapi);
 
+    if (args[0] == "shop" || args[0] == "store") {
+        const superagent = require("superagent");
+        let dailyShop = weeklyShop = featuredImg = "";
+        let largest = price = 0;
+        let { body } = await superagent
+            .get("https://fnbr.co/api/shop")
+            .set('x-api-key', botconfig.FNBRapi);
+
+        body.data.featured.forEach(element => {
+            if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
+            else price = parseInt(element.price.replace(",", "."))
+            if (element.images.gallery == false) ImgLink = element.images.icon;
+            else ImgLink = element.images.gallery
+            weeklyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
+
+            if (price >= largest) {
+                largest = price;
+                if (element.images.gallery == false) featuredImg = element.images.icon;
+                else featuredImg = element.images.gallery
+            }
+        });
+        body.data.daily.forEach(element => {
+            if (element.price.includes(",")) price = parseInt(element.price.replace(",", ".")) * 1000
+            else price = parseInt(element.price.replace(",", "."))
+            if (element.images.gallery == false) ImgLink = element.images.icon;
+            else ImgLink = element.images.gallery
+            dailyShop += `[${element.name}](${ImgLink})- ${price} Vbucks \n`
+        });
+        let embed = new Discord.RichEmbed()
+            .setColor("#ff9800")
+            .setTitle("Fortnite Item shop")
+            .addField("Daily",
+                `${dailyShop} \n`
+            )
+            .addField("Featured",
+                `${weeklyShop}\n`
+            )
+            .setImage(featuredImg)
+        message.author.send(embed)
+        message.react("✅");
+        return;
+    }
+
+    //Get stats
     const playstation = [
         "psn",
         "ps4",
@@ -16,38 +60,6 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         "xbox1",
         "xb"
     ];
-    if (args[0] == "shop" || args[0] == "store") {
-        const superagent = require("superagent");
-        let dailyShop = weeklyShop = featuredImg = "";
-        let largest = 0;
-        let { body } = await superagent
-            .get("api.fortnitetracker.com/v1/store")
-            .set('TRN-Api-Key', botconfig.ftnapi);
-
-        body.forEach(element => {
-            if (element.storeCategory != "BRDailyStorefront") {
-                weeklyShop += `${element.name} - ${element.vBucks} Vbucks \n`
-                if (element.vBucks >= largest) {
-                    largest = element.vBucks;
-                    featuredImg = element.imageUrl;
-                }
-            }
-            else {
-                dailyShop += `${element.name} - ${element.vBucks} Vbucks \n`
-            }
-        });
-        let embed = new Discord.RichEmbed()
-            .setColor("#ff9800")
-            .setTitle("Fortnite Item shop")
-            .addField("Battle Royale",
-                `**Daily shop**\n ${dailyShop} \n\n **Featured Items**\n ${weeklyShop}`
-            )
-            .setImage(featuredImg)
-        message.author.send(embed)
-        message.react("✅");
-        return;
-    }
-
     if (!args[0]) { message.reply(`Please mention a username`); message.react("❌"); return; }
     let BeforeSplit = args.slice(0).join(' ');
     let Split = BeforeSplit.split(':')
