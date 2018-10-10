@@ -22,19 +22,19 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             .set('x-api-key', botconfig.FNBRapi);
 
         body.data.featured.forEach(element => {
-            if (element.images.gallery == false) ImgLink = element.images.icon;
-            else ImgLink = element.images.gallery
+            if (element.images.icon == false) ImgLink = element.images.gallery;
+            else ImgLink = element.images.icon
             weeklyShop += `[${element.name}](${ImgLink})- ${element.price} Vbucks \n`
         });
         body.data.daily.forEach(element => {
-            if (element.images.gallery == false) ImgLink = element.images.icon;
-            else ImgLink = element.images.gallery
+            if (element.images.icon == false) ImgLink = element.images.gallery;
+            else ImgLink = element.images.icon
             dailyShop += `[${element.name}](${ImgLink})- ${element.price} Vbucks \n`
         });
         let length = body.data.featured.length - 1
         let Rnum = Math.floor(Math.random() * length)
-        if (body.data.featured[Rnum].images.gallery == false) Rimg = body.data.featured[Rnum].images.icon;
-        else Rimg = body.data.featured[Rnum].images.gallery
+        if (body.data.featured[Rnum].images.icon == false) { Rimg = body.data.featured[Rnum].images.gallery; Rinfo = `${body.data.featured[Rnum].name}- ${body.data.featured[Rnum].price} Vbucks`; }
+        else { Rimg = body.data.featured[Rnum].images.icon; Rinfo = `${body.data.featured[Rnum].name}- ${body.data.featured[Rnum].price} Vbucks`; }
         let embed = new Discord.RichEmbed()
             .setColor("#ff9800")
             .setTitle("Fortnite Item shop")
@@ -45,6 +45,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 `${weeklyShop}\n`
             )
             .setImage(Rimg)
+            .setFooter(Rinfo)
         message.author.send(embed)
         message.react("✅");
         return;
