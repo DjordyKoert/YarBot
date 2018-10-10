@@ -1,0 +1,11 @@
+module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
+
+}
+
+module.exports.help = {
+  name: "",
+  help: ".",
+  usage: ">",
+  permissions: "NONE",
+  example: ">"
+}
