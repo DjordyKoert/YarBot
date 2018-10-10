@@ -18,10 +18,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 },
                 fields: [{
                     name: "General commands",
-                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]```"
+                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]\nftn [username]:[mode]:[platform]/shop```"
                 }, {
                     name: "🕶Fun Commands",
-                    value: "```8ball```"
+                    value: "```8ball [question]\nurban [word]\ndoggo\nmeow```"
                 }, {
                     name: "🛠 Admin Commands",
                     value: "```\nsetup [channelProperty] #[channel]\nsay```"
@@ -79,14 +79,14 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     text: "Made by Yarink#4414"
                 },
                 author: {
-                    name: `👑 List of commands for ${bot.user.username}👑`,
+                    name: `👑 List of commands for ${bot.user.username} (send by: ${message.author.tag})👑`,
                 },
                 fields: [{
                     name: "General commands",
-                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]```"
+                    value: "```\nhelp\ninvite\nsuggestion [title], [message]\ndm [username] [message]\nuserinfo [username]\nticket [message]\nftn [username]:[mode]:[platform]/shop```"
                 }, {
                     name: "🕶Fun Commands",
-                    value: "```8ball```"
+                    value: "```8ball [question]\nurban [word]\ndoggo\nmeow```"
                 }, {
                     name: "🛠 Admin Commands",
                     value: "```\nsetup [channelProperty] #[channel]\nsay```"
