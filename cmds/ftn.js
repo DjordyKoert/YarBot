@@ -24,8 +24,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             .set('x-api-key', botconfig.FNBRapi);
         for (let i = 0; i < body.data.length; i++) {
             const element = body.data[i];
-            if (element.type = "outfit") firstOutfit = body.data[i]
-            else firstOutfit = body.data[0]
+            if (element.type == "outfit") firstOutfit = body.data[i];
+            else firstOutfit = body.data[0];
         }
         if (!firstOutfit) { message.reply(`${searchTerm} not found`); message.react("❌"); return; }
         else {
