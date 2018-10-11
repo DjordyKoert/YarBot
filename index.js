@@ -228,8 +228,6 @@ function createLog(fs, err, errstack, extraMessage) {
 
 
 function updateShop() {
-  const superagent = require("superagent");
-
   setInterval(async function () {
     let date = new Date();
     let hours = date.getHours();
