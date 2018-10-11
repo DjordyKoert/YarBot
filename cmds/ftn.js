@@ -17,13 +17,22 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (args[0] == "search") {
         const superagent = require("superagent");
         let searchTerm = args.slice(1).join(' ');
+        let firstOutfit = ""
         if (!searchTerm) { message.reply(`Enter a search term`); message.react("❌"); return; }
         let { body } = await superagent
-            .get(`https://fnbr.co/api/images?search=${searchTerm}`)
+            .get(`https://fnbr.co/api/images?search=${searchTerm}&limit=7`)
             .set('x-api-key', botconfig.FNBRapi);
-        if (!body.data[0]) { message.reply(`${searchTerm} not found`); message.react("❌"); return; }
+        for (let i = 0; i < body.data.length; i++) {
+            const element = body.data[i];
+            if (element.type = "outfit") firstOutfit = body.data[i]
+            else firstOutfit = body.data[0]
+        }
+        if (!firstOutfit) { message.reply(`${searchTerm} not found`); message.react("❌"); return; }
         else {
-            let itemSearch = body.data[0]
+            let itemSearch = firstOutfit
+            let ThumbImg = ""
+            if (!itemSearch.priceIconLink) ThumbImg = "https://i.imgur.com/MTeFHdm.png"
+            else ThumbImg = itemSearch.priceIconLink
             let embed = new Discord.RichEmbed()
                 .setColor("#ff9800")
                 .setTitle("Fortnite item info")
@@ -39,7 +48,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                 .addField("Price",
                     "```" + `${itemSearch.price}` + "```"
                 )
-                .setThumbnail(itemSearch.priceIconLink)
+                .setThumbnail(ThumbImg)
                 .setImage(itemSearch.images.icon)
             message.author.send(embed)
             message.react("✅");
