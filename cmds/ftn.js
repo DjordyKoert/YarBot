@@ -92,9 +92,10 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         if (gamemode == "solo") {
             stats = data.stats.solo;
             score = stats.score
-            matchesPlayed = parseInt(stats.matches)
-            wins = parseInt(stats.wins)
-            winsPercentage = Math.floor(matchesPlayed / wins)
+            matchesPlayed = parseFloat(stats.matches)
+            wins = parseFloat(stats.wins)
+            tempwinsPercentage = ((wins / matchesPlayed) * 100).toFixed(2)
+            winsPercentage = `${tempwinsPercentage}%`
             kills = stats.kills
             kd = stats.kd
         }
@@ -103,7 +104,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             score = stats.score
             matchesPlayed = parseInt(stats.matches)
             wins = parseInt(stats.wins)
-            winsPercentage = Math.floor(matchesPlayed / wins)
+            tempwinsPercentage = ((wins / matchesPlayed) * 100).toFixed(2)
+            winsPercentage = `${tempwinsPercentage}%`
             kills = stats.kills
             kd = stats.kd
         }
@@ -112,7 +114,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             score = stats.score
             matchesPlayed = parseInt(stats.matches)
             wins = parseInt(stats.wins)
-            winsPercentage = Math.floor(matchesPlayed / wins)
+            tempwinsPercentage = ((wins / matchesPlayed) * 100).toFixed(2)
+            winsPercentage = `${tempwinsPercentage}%`
             kills = stats.kills
             kd = stats.kd
         }
@@ -125,7 +128,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             kills = stats[10]['Kills']
             kd = stats[11]['K/d']
         }
-
+        console.log(data.stats.lifetime)
         let embed = new Discord.RichEmbed()
             .setTitle(`YarBot fortnite tracker`)
             .setAuthor(`${username}, ${gamemode}, ${platform}`)
