@@ -14,6 +14,40 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         return;
     }
 
+    if (args[0] == "search") {
+        const superagent = require("superagent");
+        let searchTerm = args.slice(1).join(' ');
+        if (!searchTerm) { message.reply(`Enter a search term`); message.react("❌"); return; }
+        let { body } = await superagent
+            .get(`https://fnbr.co/api/images?search=${searchTerm}`)
+            .set('x-api-key', botconfig.FNBRapi);
+        if (!body.data[0]) { message.reply(`${searchTerm} not found`); message.react("❌"); return; }
+        else {
+            let itemSearch = body.data[0]
+            let embed = new Discord.RichEmbed()
+                .setColor("#ff9800")
+                .setTitle("Fortnite item info")
+                .addField("Name",
+                    "```" + `${itemSearch.name}` + "```"
+                )
+                .addField("Rarity",
+                    "```" + `${itemSearch.rarity}` + "```"
+                )
+                .addField("Type",
+                    "```" + `${itemSearch.type}` + "```"
+                )
+                .addField("Price",
+                    "```" + `${itemSearch.price}` + "```"
+                )
+                .setThumbnail(itemSearch.priceIconLink)
+                .setImage(itemSearch.images.icon)
+            message.author.send(embed)
+            message.react("✅");
+        }
+        return
+    }
+
+
     if (args[0] == "shop" || args[0] == "store") {
         const superagent = require("superagent");
         let dailyShop = weeklyShop = featuredImg = "";
@@ -124,11 +158,11 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
             score = stats[6]['Score']
             matchesPlayed = stats[7]['Matches Played']
             wins = stats[8]['Wins']
-            winsPercentage = stats[9]['Win%']
+            tempwinsPercentage = ((wins / matchesPlayed) * 100).toFixed(2)
+            winsPercentage = `${tempwinsPercentage}%`
             kills = stats[10]['Kills']
             kd = stats[11]['K/d']
         }
-        console.log(data.stats.lifetime)
         let embed = new Discord.RichEmbed()
             .setTitle(`YarBot fortnite tracker`)
             .setAuthor(`${username}, ${gamemode}, ${platform}`)
