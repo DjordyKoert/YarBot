@@ -4,8 +4,8 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (!Split[0]) { message.react("❌"); message.reply("Please enter a title, usage: >suggestion (title)**,** (suggestion)"); return; }
     if (!Split[1]) { message.react("❌"); message.reply("Empty suggestion message, usage: >suggestion (title)**,** (suggestion)"); return; }
 
-    let testServer = "492055519050203137";
-    let suggestionChannel = "492756643239559168";
+    let testServer = "498117489612554240";
+    let suggestionChannel = "499957635026649114";
 
     bot.guilds.get(testServer).channels.get(suggestionChannel).send({
         embed: {
