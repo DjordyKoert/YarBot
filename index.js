@@ -229,17 +229,19 @@ function createLog(fs, err, errstack, extraMessage) {
 
 function updateShop() {
   setInterval(async function () {
-    let date = new Date();
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
-    let seconds = date.getSeconds();
-    if (hours == "2" && minutes == "5" && seconds <= "10") {
-      console.log("Updating shop...", hours, minutes, seconds)
-      const superagent = require("superagent");
+    con.query(`SELECT * FROM shoptime`, (err, rows) => {
+      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+      if (rows.length == 0) lastUpdate= ""
+      else lastUpdate = rows[0].Time
+    });
+    const superagent = require("superagent");
+    let { body } = await superagent
+      .get("https://fnbr.co/api/shop")
+      .set('x-api-key', botconfig.FNBRapi);
+    UpdateTime = body.data.date
+
+    if (UpdateTime != lastUpdate) {
       let dailyShop = weeklyShop = featuredImg = "";
-      let { body } = await superagent
-        .get("https://fnbr.co/api/shop")
-        .set('x-api-key', botconfig.FNBRapi);
 
       body.data.featured.forEach(element => {
         if (element.images.gallery == false) ImgLink = element.images.icon;
@@ -267,6 +269,7 @@ function updateShop() {
           `${weeklyShop}\n`
         )
         .setImage(Rimg)
+      console.log("Updating shop...", UpdateTime)
       con.query(`SELECT * FROM ssetup WHERE ftnshopID!=""`, (err, rows) => {
         if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
         rows.forEach(element => {
@@ -278,6 +281,7 @@ function updateShop() {
           }
         });
       })
+      con.query(`UPDATE shoptime SET time="${UpdateTime}"`);
     }
-  }, 10000)
+  }, 30000)
 }
