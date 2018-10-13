@@ -27,6 +27,7 @@ bot.on("ready", async () => {
     `Use >help for a list of commands`,
     `Created by Yarink#4414`
   ]
+  updateShop()
   let N = 0
   //Auto-change status
   setInterval(function () {
@@ -58,6 +59,7 @@ else {
   });
   console.log('\x1b[32m%s\x1b[0m: ', "Entering online mode...")
 }
+
 
 con.connect(err => {
   if (err) { con.destroy; let errstack = err.stack; createLog(err, errstack, "Database offline"); return; }
