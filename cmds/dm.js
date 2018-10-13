@@ -22,7 +22,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     let dmMessage = args.slice(1).join(' ');
     if (dmMessage == "") { message.react("❌"); message.reply("Empty dm message"); return; }
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND dmID !=''`, (err, rows) => {
-        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        if (err) { let errstack = err.stack; createLog(err, errstack); return; }
         //Geen channel available
         if (rows.length == 0) {}
         //If message.channel is not same as in database
@@ -32,7 +32,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
                     msg.delete(8000)
                 })
                 .catch((err) => {
-                    if (err) { let errstack = err.stack; let extraMessage = "DM message remove error"; createLog(fs, err, errstack, extraMessage); }
+                    if (err) { let errstack = err.stack; let extraMessage = "DM message remove error"; createLog(err, errstack, extraMessage); }
                 });
             message.delete();
             return;
@@ -44,8 +44,11 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     });
 
     //Create an errorLog
-    function createLog(fs, err, errstack, extraMessage) {
-        if (!extraMessage) extraMessage = "";
+    function createLog(err, errstack, extraMessage) {
+        const fs = require("fs");   
+        if (!extraMessage) extraMessage = "";   
+        if (!err) err = "";   
+        if (!errstack) errstack = "";
 
         let date = new Date();
         let currentYear = date.getFullYear();
@@ -64,7 +67,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
         fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n${errstack}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
             if (err) return console.error(err);
-            console.log(`Succefully made logs file: err_${error_date}.txt`);
+            console.log(`Succefully made logs file: err_${error_date}.txt, ${extraMessage}`);
         });
     }
 }

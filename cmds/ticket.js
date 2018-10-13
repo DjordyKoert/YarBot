@@ -2,7 +2,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (message.channel.type == "dm") { message.reply("This command can only be used in a server"); message.react("❌"); return; }
 
     con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ticketID !=''`, (err, rows) => {
-        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        if (err) { let errstack = err.stack; createLog(err, errstack); return; }
         //Geen channel available
         if (rows.length == 0) {
             message.reply("No ticket channel available");

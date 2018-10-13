@@ -27,7 +27,6 @@ bot.on("ready", async () => {
     `Use >help for a list of commands`,
     `Created by Yarink#4414`
   ]
-  updateShop()
   let N = 0
   //Auto-change status
   setInterval(function () {
@@ -60,9 +59,8 @@ else {
   console.log('\x1b[32m%s\x1b[0m: ', "Entering online mode...")
 }
 
-//DB error
 con.connect(err => {
-  if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+  if (err) { con.destroy; let errstack = err.stack; createLog(err, errstack, "Database offline"); return; }
   console.log('\x1b[32m%s\x1b[0m: ', "Connected to database");
 });
 
@@ -90,7 +88,7 @@ columns.forEach(element => {
 bot.on("guildCreate", guild => {
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
   con.query(`SELECT * FROM ssetup WHERE serverID='${guild.id}'`, (err, rows) => {
-    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    if (err) { let errstack = err.stack; createLog(err, errstack); return; }
     //If server doesn't already have an announcement channel
     if (rows.length == 0) {
       con.query(`INSERT INTO ssetup (serverID, serverName) VALUES ('${guild.id}', '${guild.name}')`);
@@ -107,7 +105,7 @@ bot.on("guildDelete", guild => {
   let server = guild.id;
   bot.user.setActivity(`YarBot in ${bot.guilds.size} servers, Use >help for help`);
   con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}'`, (err, rows) => {
-    if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+    if (err) { let errstack = err.stack; createLog(err, errstack); return; }
     if (!rows.length == 0) {
       con.query(`DELETE FROM ssetup WHERE serverID='${server.id}'`);
       console.log(`Server removed, because bot left: ${server.id}`)
@@ -119,19 +117,19 @@ bot.on("guildDelete", guild => {
 bot.on("channelDelete", channel => {
   for (let i = 2; i < (columns.length - 2); i++) {
     con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel.id}'`, err => {
-      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+      if (err) { let errstack = err.stack; createLog(err, errstack); return; }
     });
   }
   for (let i = 6; i < (columns.length); i++) {
     con.query(`UPDATE ssetup SET ${columns[i]}="" WHERE ${columns[i]}='${channel}'`, err => {
-      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+      if (err) { let errstack = err.stack; createLog(err, errstack); return; }
     });
   }
 });
 
 //Command Handler
 fs.readdir("./cmds/", (err, files) => {
-  if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+  if (err) { let errstack = err.stack; createLog(err, errstack); return; }
   let jsfiles = files.filter(f => f.split(".").pop() === "js");
   if (jsfiles.length <= 0) return console.log("No command files found");
 
@@ -166,7 +164,7 @@ bot.on("message", async message => {
     //Check of commands zijn toegestaan in deze channel
     if (message.channel.type != "dm") {
       con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND commandsID !=''`, (err, rows) => {
-        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        if (err) { let errstack = err.stack; createLog(err, errstack); return; }
         if (rows.length > 0) {
           //Check if channel = DBid or DBid = all or user has permission or user is owner
           if (message.channel != rows[0].commandsID && rows[0].commandsID != "all" && !message.member.hasPermission("MANAGE_CHANNELS")) {
@@ -195,16 +193,17 @@ bot.login(botconfig.token);
 
 bot.on("error", (err) => {
   if (err) {
-    let errstack = err.stack; createLog(fs, err, errstack); return;
+    let errstack = err.stack; createLog(err, errstack); return;
   }
 });
-
 //Create an errorLog
 
 
-function createLog(fs, err, errstack, extraMessage) {
+function createLog(err, errstack, extraMessage) {
+  const fs = require("fs");
   if (!extraMessage) extraMessage = "";
-
+  if (!err) err = "";
+  if (!errstack) errstack = "";
   let date = new Date();
   let currentYear = date.getFullYear();
   let currentMonth = date.getMonth();
@@ -222,16 +221,17 @@ function createLog(fs, err, errstack, extraMessage) {
 
   fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n${errstack}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
     if (err) return console.error(err);
-    console.log(`Succefully made logs file: err_${error_date}.txt`);
+    console.log(`Succefully made logs file: err_${error_date}.txt, ${extraMessage}`);
   });
 }
 
 
 function updateShop() {
+  let lastUpdate = ""
   setInterval(async function () {
     con.query(`SELECT * FROM shoptime`, (err, rows) => {
-      if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
-      if (rows.length == 0) lastUpdate= ""
+      if (err) { let errstack = err.stack; createLog(err, errstack); return; }
+      if (rows.length == 0) lastUpdate = ""
       else lastUpdate = rows[0].Time
     });
     const superagent = require("superagent");
@@ -239,7 +239,6 @@ function updateShop() {
       .get("https://fnbr.co/api/shop")
       .set('x-api-key', botconfig.FNBRapi);
     UpdateTime = body.data.date
-
     if (UpdateTime != lastUpdate) {
       let dailyShop = weeklyShop = featuredImg = "";
 
@@ -268,15 +267,20 @@ function updateShop() {
         .addField("Featured",
           `${weeklyShop}\n`
         )
-        .setImage(Rimg)
-      console.log("Updating shop...", UpdateTime)
+        .setImage(Rimg);
+      let date = new Date();
+      let currentHours = date.getHours();
+      let currentMinutes = date.getMinutes();
+      let err = "Updating Shop..."
+      let extraMessage = `Time: ${currentHours}:${currentMinutes}`
+      createLog(err, "", extraMessage)
       con.query(`SELECT * FROM ssetup WHERE ftnshopID!=""`, (err, rows) => {
-        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        if (err) { let errstack = err.stack; createLog(err, errstack); return; }
         rows.forEach(element => {
           try {
             bot.guilds.get(element.serverID).channels.get(element.ftnshopID).send(shopembed);
           } catch (err) { //If bot can't reach the server. AKA bot left the server
-            if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an fortnite Shop. Removing server from database"; createLog(fs, err, errstack, extraMessage); }
+            if (err) { let errstack = err.stack; let extraMessage = "Bot probably left server and can't send an fortnite Shop. Removing server from database"; createLog(err, errstack, extraMessage); }
             con.query(`DELETE FROM ssetup WHERE serverID='${element.serverID}'`);
           }
         });

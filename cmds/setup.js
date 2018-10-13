@@ -4,7 +4,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     if (!message.member.hasPermission("MANAGE_CHANNELS")) { message.reply("No permission to use this command"); message.react("❌"); return; };
     //Check if server is in database before continuing
     con.query(`SELECT serverID FROM ssetup WHERE serverID='${server.id}'`, (err, rows) => {
-        if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+        if (err) { let errstack = err.stack; createLog(err, errstack); return; }
         if (rows.length == 0) {
             con.query(`INSERT INTO ssetup (serverID, serverName) VALUES ('${server.id}', '${server.name}')`);
             console.log(`New server added: ${server.id}, Trough setup command`);
@@ -29,7 +29,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     //Als er een channel geremoved moet worden
     else if (args[0] == "remove" && (args[1] == "ticket" || args[1] == "announcement" || args[1] == "dm" || args[1] == "commands")) {
         con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[1]}ID !=''`, (err, rows) => {
-            if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+            if (err) { let errstack = err.stack; createLog(err, errstack); return; }
             if (rows.length == 0) { message.reply(`No ${args[1]} channel available`); message.react("❌"); return; }
             con.query(`UPDATE ssetup SET ${args[1]}ID="" WHERE serverID='${server.id}'`);
             message.react("✅");
@@ -45,7 +45,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         //Show current x channel
         if (!message.mentions.channels.first() && args[1] != "all") {
             con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
-                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                if (err) { let errstack = err.stack; createLog(err, errstack); return; }
                 if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
                 if (args[0] == "dm") message.reply(`the current dm channel is: ${rows[0].dmID}`);
                 else if (args[0] == "commands") message.reply(`the current commands channel is: ${rows[0].commandsID}`);
@@ -66,7 +66,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
         //Show current x channel
         if (!message.mentions.channels.first()) {
             con.query(`SELECT * FROM ssetup WHERE serverID='${server.id}' AND ${args[0]}ID !=''`, (err, rows) => {
-                if (err) { let errstack = err.stack; createLog(fs, err, errstack); return; }
+                if (err) { let errstack = err.stack; createLog(err, errstack); return; }
                 if (rows.length == 0) { message.reply(`No ${args[0]} channel available`); message.react("❌"); return; }
                 if (args[0] == "ticket") message.reply(`the current ticket channel is: <#${rows[0].ticketID}>`);
                 else if (args[0] == "announcement") message.reply(`the current announcement channel is: <#${rows[0].announcementID}>`);
@@ -84,8 +84,11 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
     }
 
     //Create an errorLog
-    function createLog(fs, err, errstack, extraMessage) {
-        if (!extraMessage) extraMessage = "";
+    function createLog(err, errstack, extraMessage) {
+        const fs = require("fs");   
+        if (!extraMessage) extraMessage = "";   
+        if (!err) err = "";   
+        if (!errstack) errstack = "";
 
         let date = new Date();
         let currentYear = date.getFullYear();
@@ -104,7 +107,7 @@ module.exports.run = async (bot, botconfig, fs, message, args, con, server) => {
 
         fs.writeFile(`./logs/err_${error_date}.txt`, `${err}\n${errstack}\n\n${extraMessage}`, { flag: 'w' }, function (err) {
             if (err) return console.error(err);
-            console.log(`Succefully made logs file: err_${error_date}.txt`);
+            console.log(`Succefully made logs file: err_${error_date}.txt, ${extraMessage}`);
         });
     }
 }
